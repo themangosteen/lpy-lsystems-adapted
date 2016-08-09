@@ -58,16 +58,16 @@ LsysOption::LsysOption(const std::string& _name,
 LsysOption::~LsysOption()
 {
 	DecTracker(LsysOption)
-	for(OptionValueList::iterator it = __optionvalues.begin(); 
-		it != __optionvalues.end(); ++it) delete *it;
+	for(OptionValueList::iterator it = m_optionvalues.begin(); 
+		it != m_optionvalues.end(); ++it) delete *it;
 }
 
 bool LsysOption::activate(const std::string& optionvalue)
 {
-	for(OptionValueList::iterator it = __optionvalues.begin(); 
-		it != __optionvalues.end(); ++it) {
+	for(OptionValueList::iterator it = m_optionvalues.begin(); 
+		it != m_optionvalues.end(); ++it) {
 			if ((*it)->name == optionvalue){
-				current_value_id = distance(__optionvalues.begin(),it);
+				current_value_id = distance(m_optionvalues.begin(),it);
 				(*it)->activate();
 				return true;
 			}
@@ -77,16 +77,16 @@ bool LsysOption::activate(const std::string& optionvalue)
 
 bool LsysOption::activateSelection() 
 {
-	__optionvalues[current_value_id]->activate();
+	m_optionvalues[current_value_id]->activate();
 	return true;
 }
 
 bool LsysOption::setSelection(const std::string& optionvalue)
 {
-	for(OptionValueList::iterator it = __optionvalues.begin(); 
-		it != __optionvalues.end(); ++it) {
+	for(OptionValueList::iterator it = m_optionvalues.begin(); 
+		it != m_optionvalues.end(); ++it) {
 			if ((*it)->name == optionvalue){
-				current_value_id = distance(__optionvalues.begin(),it);
+				current_value_id = distance(m_optionvalues.begin(),it);
 				return true;
 			}
 	}
@@ -95,7 +95,7 @@ bool LsysOption::setSelection(const std::string& optionvalue)
 
 bool LsysOption::setSelection(size_t value)
 {
-	if (value >=  __optionvalues.size())return false;
+	if (value >=  m_optionvalues.size())return false;
 	current_value_id = value;
 	valueChanged(current_value_id);
 	return true;
@@ -109,12 +109,12 @@ void LsysOption::setCurrentValueId(size_t value)
 
 void LsysOption::connectTo(UpdateSlot slot)
 {
-	__connectedSlots.push_back(slot);
+	m_connectedSlots.push_back(slot);
 }
 
 void LsysOption::valueChanged(size_t value)
 {
-	for(UpdateSlotList::iterator it = __connectedSlots.begin(); it != __connectedSlots.end(); ++it)
+	for(UpdateSlotList::iterator it = m_connectedSlots.begin(); it != m_connectedSlots.end(); ++it)
 		(**it)(value);
 }
 
@@ -128,19 +128,19 @@ LsysOptions::LsysOptions()
 LsysOptions::~LsysOptions()
 {
 	DecTracker(LsysOptions)
-	for(OptionList::iterator it = __options.begin();  it != __options.end(); ++it) delete *it;
+	for(OptionList::iterator it = m_options.begin();  it != m_options.end(); ++it) delete *it;
 }
 
 LsysOption* LsysOptions::add(const std::string& name, const std::string& comment, const std::string& category)
 {
 	LsysOption * newoption = new LsysOption(name,comment,category);
-	__options.push_back(newoption);
+	m_options.push_back(newoption);
 	return newoption;
 }
 
 LsysOption* LsysOptions::find(const std::string& name)
 {
-	for(OptionList::iterator it = __options.begin(); it != __options.end(); ++it) {
+	for(OptionList::iterator it = m_options.begin(); it != m_options.end(); ++it) {
 			if ((*it)->name == name){
 				return *it;
 			}

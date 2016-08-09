@@ -29,9 +29,11 @@
  */
 
 #include "paramproduction.h"
+#include "../plantgl/tool/util_string.h"
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
+
 #define bp boost::python
 
 ParametricProductionPtr ParametricProduction::create()
@@ -60,17 +62,15 @@ ParamProductionManager& ParamProductionManager::get()
 }
 
 ParamProductionManager::ParamProductionManager():
-	__productions(), __free_indices()
+	m_productions(), m_free_indices()
 {
 }
 
-#include <plantgl/tool/util_string.h>
-
 ParametricProductionPtr ParamProductionManager::get_production(size_t pid)
 {
-	if (pid < __productions.size())
+	if (pid < m_productions.size())
 	{
-		return ParametricProductionPtr(__productions[pid]);
+		return ParametricProductionPtr(m_productions[pid]);
 	}
 	else 
 	{
@@ -85,26 +85,26 @@ void ParamProductionManager::add_production(ParametricProduction& value)
 {
 
 	size_t pid;
-	if (__free_indices.empty()){
-		pid = __productions.size();
-		__productions.push_back(&value);
+	if (m_free_indices.empty()){
+		pid = m_productions.size();
+		m_productions.push_back(&value);
 	}
 	else {
-		pid = __free_indices.front();
-		__free_indices.pop();
-		__productions[pid] = & value;
+		pid = m_free_indices.front();
+		m_free_indices.pop();
+		m_productions[pid] = & value;
 	}
 
-	value.__pid = pid;
+	value.m_pid = pid;
 }
 
 void ParamProductionManager::remove_production(ParametricProduction& value)
 {
 	size_t pid = value.pid();
-	if (pid == __productions.size())
-		__productions.pop_back();
+	if (pid == m_productions.size())
+		m_productions.pop_back();
 	else {
-		__free_indices.push(pid);
-		__productions[pid] = NULL;
+		m_free_indices.push(pid);
+		m_productions[pid] = NULL;
 	}
 }

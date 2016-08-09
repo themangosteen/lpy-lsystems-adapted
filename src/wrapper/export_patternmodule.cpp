@@ -28,10 +28,10 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "patternmodule.h"
-#include "matching.h"
+#include "../cpp/patternmodule.h"
+#include "../cpp/matching.h"
 #include "export_module.h"
-#include <plantgl/python/export_list.h>
+#include "../plantgl/python/export_list.h"
 
 using namespace boost::python;
 #define bp boost::python

@@ -28,8 +28,8 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "nodemodule.h"
-#include <plantgl/python/export_list.h>
+#include "../cpp/nodemodule.h"
+#include "../plantgl/python/export_list.h"
 
 using namespace boost::python;
 #define bp boost::python

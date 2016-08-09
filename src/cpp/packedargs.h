@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __LSYS_PACKEDARG_H__
-#define __LSYS_PACKEDARG_H__
+#pragma once
 
 #include "error.h"
 #include <boost/python.hpp>
@@ -47,5 +46,3 @@ public:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

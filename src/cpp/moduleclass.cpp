@@ -32,7 +32,7 @@
 #include "moduleclass.h"
 #include "lsyscontext.h"
 #include "tracker.h"
-#include <plantgl/tool/util_string.h>
+#include "../plantgl/tool/util_string.h"
 #include <algorithm>
 #include <iostream>
 
@@ -41,13 +41,13 @@ LPY_BEGIN_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 ModuleClassTable& ModuleClassTable::get() { 
-	if (!ModuleClassTable::__INSTANCE){
-		ModuleClassTable::__INSTANCE = new ModuleClassTable();
+	if (!ModuleClassTable::m_INSTANCE){
+		ModuleClassTable::m_INSTANCE = new ModuleClassTable();
 	}
-	return *__INSTANCE; 
+	return *m_INSTANCE; 
 }
 
-ModuleClassTable * ModuleClassTable::__INSTANCE = NULL;
+ModuleClassTable * ModuleClassTable::m_INSTANCE = NULL;
 
 class ModuleClassTableGarbageCollector
 {
@@ -55,22 +55,22 @@ public:
 	ModuleClassTableGarbageCollector() {}
 	~ModuleClassTableGarbageCollector() { 
 		// std::cerr  << "module classes garbage collector" << std::endl;
-		if (ModuleClassTable::__INSTANCE)
+		if (ModuleClassTable::m_INSTANCE)
 			ModuleClassTable::clearModuleClasses();
 	}
 protected:
-	static ModuleClassTableGarbageCollector __INSTANCE;
+	static ModuleClassTableGarbageCollector m_INSTANCE;
 };
 
-ModuleClassTableGarbageCollector ModuleClassTableGarbageCollector::__INSTANCE;
+ModuleClassTableGarbageCollector ModuleClassTableGarbageCollector::m_INSTANCE;
 
 void ModuleClassTable::clearModuleClasses()
 {
 	ModuleClass::clearPredefinedClasses();
 
-	if (ModuleClassTable::__INSTANCE) {
-			delete ModuleClassTable::__INSTANCE; 
-			ModuleClassTable::__INSTANCE = NULL; 
+	if (ModuleClassTable::m_INSTANCE) {
+			delete ModuleClassTable::m_INSTANCE; 
+			ModuleClassTable::m_INSTANCE = NULL; 
 	}
 }
 
@@ -95,22 +95,22 @@ TOOLS(RefCountObject)(), name(_name), onlyInPattern(false), id(MAXID), active(tr
 ModuleClass::~ModuleClass()
 { 
 	// std::cerr << "Delete module class '" << name << "' with id " << id << " ... done." << std::endl;
-	if(ModuleClassTable::__INSTANCE) 
-		ModuleClassTable::__INSTANCE->remove(this);
+	if(ModuleClassTable::m_INSTANCE) 
+		ModuleClassTable::m_INSTANCE->remove(this);
 	if (id == MAXID-1) --MAXID;
 	DecTracker(ModuleClass)
 }
 
-
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 void ModuleClass::interpret(ParamModule& m, PGL::Turtle& t) { 
 }
-
+#endif
 
 void ModuleClass::activate(bool value) 
 {	
 	active = value; 
     if (!active)
-		if(__vtable)__vtable->desactivate(); 
+		if(m_vtable)m_vtable->desactivate(); 
 	else 
 		if (!ModuleClassTable::get().isDeclared(this))
 			ModuleClassTable::get().declare(this);
@@ -118,49 +118,49 @@ void ModuleClass::activate(bool value)
 
 void ModuleClass::create_vtable()
 {
-	__vtable = new ModuleVTable(this);
+	m_vtable = new ModuleVTable(this);
 }
 
 void ModuleClass::setProperty(ModulePropertyPtr prop)
 {
-	if(!__vtable)create_vtable();
-	__vtable->setProperty(prop);
+	if(!m_vtable)create_vtable();
+	m_vtable->setProperty(prop);
 }
 
 bool ModuleClass::removeProperty(const std::string& name)
 {
-	if(__vtable)return __vtable->removeProperty(name);
+	if(m_vtable)return m_vtable->removeProperty(name);
 	else return false;
 }
 
 void ModuleClass::setBases(const ModuleClassList& bases)
 {
-	if(!__vtable)create_vtable();
-	__vtable->setBases(bases);
+	if(!m_vtable)create_vtable();
+	m_vtable->setBases(bases);
 }
 
 ModuleClassList ModuleClass::getBases() const
 {
-	if(!__vtable) return ModuleClassList();
-	else return __vtable->getBases();
+	if(!m_vtable) return ModuleClassList();
+	else return m_vtable->getBases();
 }
 
 
 
 void ModuleClass::setScale(int scale)
 {
-	if(!__vtable)create_vtable();
-	__vtable->scale = scale;
+	if(!m_vtable)create_vtable();
+	m_vtable->scale = scale;
 }
 
 /*---------------------------------------------------------------------------*/
 
 void ModuleClass::setParameterNames(const std::vector<std::string>& names){
-	__paramnames.clear();
+	m_paramnames.clear();
 	std::vector<std::string>::const_iterator itname = names.begin();
 	for(size_t id = 0; itname != names.end(); ++itname,++id){
 		// printf("'%s' %i : %s\n",name.c_str(),id,itname->c_str());
-		__paramnames[*itname] = id;
+		m_paramnames[*itname] = id;
 	}
 }
 
@@ -171,17 +171,17 @@ bool ModuleClass::sortNames(const std::string& a, const std::string& b)
 std::vector<std::string> ModuleClass::getParameterNames() const
 {
 	std::vector<std::string> res;
-	for(ParameterNameDict::const_iterator itname = __paramnames.begin(); itname != __paramnames.end(); ++itname)
+	for(ParameterNameDict::const_iterator itname = m_paramnames.begin(); itname != m_paramnames.end(); ++itname)
 		res.push_back(itname->first);
-	sorter = &__paramnames;
+	sorter = &m_paramnames;
 	std::sort(res.begin(),res.end(),sortNames);
 	sorter = NULL;
 	return res;
 }
 
 size_t ModuleClass::getParameterPosition(const std::string& name) const{
-	ParameterNameDict::const_iterator res = __paramnames.find(name);
-	if(res != __paramnames.end()) return res->second;
+	ParameterNameDict::const_iterator res = m_paramnames.find(name);
+	if(res != m_paramnames.end()) return res->second;
 	else return NOPOS;
 }
 
@@ -197,7 +197,7 @@ mandatory_declaration(false), maxnamelength(0)
 ModuleClassTable::~ModuleClassTable()
 {
 	clear();
-	ModuleClassTable::__INSTANCE = NULL;
+	ModuleClassTable::m_INSTANCE = NULL;
 	DecTracker(ModuleClassTable)
 }
 

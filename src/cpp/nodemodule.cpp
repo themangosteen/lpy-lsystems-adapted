@@ -38,12 +38,12 @@ LPY_USING_NAMESPACE
 NodeModule::NodeModule(AxialTree::const_iterator pos, 
 			 AxialTree::const_iterator beg, 
 			 AxialTree::const_iterator end):
-	ParamModule(*pos), __pos(pos), __beg(beg),__end(end) 
+	ParamModule(*pos), m_pos(pos), m_beg(beg),m_end(end) 
 {
 }
 
 NodeModule::NodeModule(AxialTree::const_iterator beg, AxialTree::const_iterator end):
-	ParamModule(), __pos(end), __beg(beg),__end(end) 
+	ParamModule(), m_pos(end), m_beg(beg),m_end(end) 
 {
 }
 

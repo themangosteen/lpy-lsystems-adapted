@@ -29,6 +29,8 @@
 # ---------------------------------------------------------------------------
 */
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+
 #include "module.h"
 #include "axialtree.h"
 #include "interpretation.h"
@@ -45,14 +47,14 @@ LPY_USING_NAMESPACE
 std::string StringInterpreter::help(const std::string& command){
     std::stringstream stream;
   if(command.empty()){
-	for (std::vector<std::pair<std::string,std::string> >::const_iterator i =__comments.begin();
-	i != __comments.end(); i++)
+	for (std::vector<std::pair<std::string,std::string> >::const_iterator i =m_comments.begin();
+	i != m_comments.end(); i++)
 	  stream << i->first << " : "<< i->second << std::endl;
   }
   else{
-	std::vector<std::pair<std::string,std::string> >::const_iterator i =__comments.begin();
-	for (;i != __comments.end() && i->first != command ;)i++;
-	if (i !=  __comments.end())
+	std::vector<std::pair<std::string,std::string> >::const_iterator i =m_comments.begin();
+	for (;i != m_comments.end() && i->first != command ;)i++;
+	if (i !=  m_comments.end())
 	  stream << i->first << " : "<< i->second << std::endl;
   }
   return stream.str();
@@ -142,4 +144,5 @@ void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle, const StringMat
 
 /*---------------------------------------------------------------------------*/
 
+#endif
 

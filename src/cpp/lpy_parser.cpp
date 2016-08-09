@@ -31,13 +31,11 @@
 #include "lsystem.h"
 #include "matching.h"
 #include "lpy_parser.h"
-#include <plantgl/tool/util_string.h>
-#include <plantgl/python/extract_list.h>
+#include "../plantgl/tool/util_string.h"
+#include "../plantgl/python/extract_list.h"
 #include <QtCore/QFileInfo>
 
 using namespace boost::python;
-TOOLS_USING_NAMESPACE
-PGL_USING_NAMESPACE
 LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
@@ -246,7 +244,7 @@ float LpyParsing::getFormatVersion(std::string::const_iterator& it, std::string:
 
 
 #define PROCESS_RULE(rulecode,code,addedcode,mode,group,consider) \
-	LsysRule& r = __addRule(rulecode,mode,group,lineno - std::count(rule.begin(),rule.end(),'\n'),consider); \
+	LsysRule& r = addRule(rulecode,mode,group,lineno - std::count(rule.begin(),rule.end(),'\n'),consider); \
     code += r.getCoreCode(); \
     addedcode += r.getCallerCode(); \
 	rule.clear(); \
@@ -267,7 +265,7 @@ size_t LsysContext::initialiseFrom(const std::string& _lcode)
 #else
   const std::string& lcode = _lcode;
 #endif
-  return __initialiseFrom(lcode);
+  return m_initialiseFrom(lcode);
 }
 
 void 
@@ -275,11 +273,11 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  const boost::python::dict& parameters){
   ACQUIRE_RESSOURCE
   std::string filename = getFilename();
-  __clear();
+  clear();
   if(!filename.empty())setFilename(filename);
   filename = getShortFilename();
 //  printf("A\n");
-  ContextMaintainer m(&__context);
+  ContextMaintainer m(&m_context);
 #ifndef _WIN32
   std::string _rules_ = _rules;
   for(std::string::iterator _itEr = _rules_.begin(); _itEr != _rules_.end(); ++_itEr)
@@ -320,9 +318,9 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   else if (_it != _it2) { _it = _it2; ++lineno; }
   
   //  context initialisation
-  size_t initpos = __context.__initialiseFrom(rules);
+  size_t initpos = m_context.m_initialiseFrom(rules);
   if (len(parameters) > 0){
-	  __context.updateNamespace(parameters);
+	  m_context.updateNamespace(parameters);
   }
 
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
@@ -406,7 +404,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			if(!modules.second.empty()){
 				pgl_hash_map_string<std::string>::iterator it = modules.second.find("scale");
 				if (it != modules.second.end()) {
-					scale = extract<int>(__context.evaluate(it->second))();
+					scale = extract<int>(m_context.evaluate(it->second))();
 					modules.second.erase(it);
 				}
 				it = modules.second.find("base");
@@ -440,7 +438,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 							inherit.insert(inherit.end(),'\'');
 							inherit.insert(inherit.end(),']');
 						}
-						std::vector<std::string> inheritedclassnames = extract_vec<std::string>(__context.evaluate(inherit))();
+						std::vector<std::string> inheritedclassnames = extract_vec<std::string>(m_context.evaluate(inherit))();
 						for(std::vector<std::string>::const_iterator iticl = inheritedclassnames.begin(); iticl != inheritedclassnames.end(); ++iticl){
 							ModuleClassPtr bsclass = ModuleClassTable::get().find(*iticl);
 							if (!bsclass) LsysError("Undefined base class '"+*iticl+"'.","",lineno);
@@ -455,7 +453,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				ModuleClassPtr mod;
 				if(!itmod->alias){
 					mod = ModuleClassTable::get().declare(itmod->name);
-				    __context.declare(mod);
+				    m_context.declare(mod);
 					if(!itmod->parameters.empty()){
 						// printf("%s\n",itmod->parameters.c_str());
 						std::vector<std::string> args = LpyParsing::parse_arguments(itmod->parameters);
@@ -469,7 +467,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				}
 				else {
 					mod = ModuleClassTable::get().alias(itmod->name,itmod->parameters);
-					__context.declareAlias(itmod->name,mod);
+					m_context.declareAlias(itmod->name,mod);
 				}
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
 				if(!inheritance.empty())mod->setBases(inheritance);
@@ -508,7 +506,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			for(LpyParsing::ModNameList::const_iterator itmod = modules.begin(); 
 				 itmod != modules.end(); ++itmod){
 				ModuleClassPtr mod = ModuleClassTable::get().find(*itmod);
-				if(mod)__context.undeclare(mod);
+				if(mod)m_context.undeclare(mod);
 				else LsysError("Cannot undeclare a not declared module",filename,lineno);
 			}
 			beg = _it;
@@ -637,7 +635,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  toendline(_it,endpycode);
 			  if(beg != endpycode)
 				  currentConsider = ConsiderFilter::ignore(std::string(beg,_it));
-				// __context.ignore(std::string(beg,_it));
+				// m_context.ignore(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for ignore");
 			}
             else LsysParserSyntaxError("Cannot find ':' after ignore");
@@ -777,7 +775,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  _it++;
 			if(_it!=endpycode && (*_it)==':'){
               if (notOnlySpace(beg,_it)){
-                  group = __context.readInt(std::string(beg,_it));
+                  group = m_context.readInt(std::string(beg,_it));
                   if (group < 0) {
                       std::stringstream ss;
                       ss << "Invalid value for group : ";
@@ -872,7 +870,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  if(beg != endpycode)
 				  currentConsider = ConsiderFilter::consider(std::string(beg,_it));
 			  else currentConsider = ConsiderFilterPtr();
-				  //__context.consider(std::string(beg,_it));
+				  //m_context.consider(std::string(beg,_it));
               // else LsysParserSyntaxError("Cannot find value for consider");
 			}
             else LsysParserSyntaxError("Cannot find ':' after consider");
@@ -901,7 +899,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				 // printf("Current consider %i at line %i : %s \n",lineno,currentConsider.get(),(currentConsider?currentConsider->str().c_str():""));
 			  }
 			  else currentConsider = ConsiderFilterPtr();
-				  // __context.ignore(std::string(beg,_it));
+				  // m_context.ignore(std::string(beg,_it));
 			  // else LsysParserSyntaxError("Cannot find value for ignore");
 			}
             else LsysParserSyntaxError("Cannot find ':' after ignore");
@@ -981,12 +979,12 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 	code+='\n'+addedcode;
   if(pycode) *pycode = code;
   // printf("%s",code.c_str());
-  __context.compile(code);
-  __importPyFunctions();
-  if (__context.hasObject(LsysContext::AxiomVariable)){
+  m_context.compile(code);
+  importPyFunctions();
+  if (m_context.hasObject(LsysContext::AxiomVariable)){
       if (!axiom_is_function){
           try
-          { __axiom = AxialTree(extract<boost::python::list>(__context.getObject(LsysContext::AxiomVariable))); }
+          { m_axiom = AxialTree(extract<boost::python::list>(m_context.getObject(LsysContext::AxiomVariable))); }
           catch(error_already_set const &)
           { 
 		      PyErr_Clear();
@@ -995,54 +993,54 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
       }
       else {
           // Execute function axiom
-           __context.func(LsysContext::AxiomVariable);
-           __axiom =  __context.get_nproduction();
-           __context.reset_nproduction();
+           m_context.func(LsysContext::AxiomVariable);
+           m_axiom =  m_context.get_nproduction();
+           m_context.reset_nproduction();
       }
   }
-  if (__context.hasObject(LsysContext::DerivationLengthVariable)){
+  if (m_context.hasObject(LsysContext::DerivationLengthVariable)){
       try
-      { __max_derivation = extract<int>(__context.getObject(LsysContext::DerivationLengthVariable)); }
+      { m_max_derivation = extract<int>(m_context.getObject(LsysContext::DerivationLengthVariable)); }
       catch(error_already_set const &)
       { 
           PyErr_Clear();
-          extract<float> t(__context.getObject(LsysContext::DerivationLengthVariable)); 
+          extract<float> t(m_context.getObject(LsysContext::DerivationLengthVariable)); 
           if (t.check()) {
-              __max_derivation = (int)t();
+              m_max_derivation = (int)t();
               LsysWarning("Floating point value is given for derivation Length. Rounding.",filename,max_derivation_lineno); 
           }
           else LsysError("Derivation Length has an invalid value.",filename,max_derivation_lineno); 
       }
   }
-  if (__context.hasObject(LsysContext::DecompositionMaxDepthVariable)){
+  if (m_context.hasObject(LsysContext::DecompositionMaxDepthVariable)){
       try
-      { __decomposition_max_depth = extract<int>(__context.getObject(LsysContext::DecompositionMaxDepthVariable)); }
+      { m_decomposition_max_depth = extract<int>(m_context.getObject(LsysContext::DecompositionMaxDepthVariable)); }
       catch(error_already_set const &)
       { 
           PyErr_Clear();
-          extract<float> t(__context.getObject(LsysContext::DecompositionMaxDepthVariable)); 
+          extract<float> t(m_context.getObject(LsysContext::DecompositionMaxDepthVariable)); 
           if (t.check()) {
-              __decomposition_max_depth = (int)t();
+              m_decomposition_max_depth = (int)t();
               LsysWarning("Floating point value is given for decomposition maximum length. Rounding.",filename,decomposition_max_depth_lineno); 
           }
           else LsysError("Decomposition maximum length has an invalid value.",filename,decomposition_max_depth_lineno); 
       }
   }
-  if (__context.hasObject(LsysContext::HomomorphismMaxDepthVariable)){
+  if (m_context.hasObject(LsysContext::HomomorphismMaxDepthVariable)){
       try
-      { __interpretation_max_depth = extract<int>(__context.getObject(LsysContext::HomomorphismMaxDepthVariable)); }
+      { m_interpretation_max_depth = extract<int>(m_context.getObject(LsysContext::HomomorphismMaxDepthVariable)); }
       catch(error_already_set const &)
       { 
           PyErr_Clear();
-          extract<float> t(__context.getObject(LsysContext::HomomorphismMaxDepthVariable)); 
+          extract<float> t(m_context.getObject(LsysContext::HomomorphismMaxDepthVariable)); 
           if (t.check()) {
-              __interpretation_max_depth = (int)t();
+              m_interpretation_max_depth = (int)t();
               LsysWarning("Floating point value is given for homomorphism maximum length. Rounding.",filename,homomorphism_max_depth_lineno); 
           }
           else LsysError("Homomorphism maximum length has an invalid value.",filename,homomorphism_max_depth_lineno); 
       }
   }
-  __context.check_init_functions();
+  m_context.check_init_functions();
   RELEASE_RESSOURCE
 }
 
@@ -1057,9 +1055,9 @@ void LsysRule::set( const std::string& rule ){
   std::string staticmarkertxt = "@static";
   bool staticrule = false;
   // count number of lines
-  __codelength = 0;
+  m_codelength = 0;
   for(std::string::const_iterator it = rule.begin(); it != rule.end(); ++it)
-	  if (*it == '\n') ++__codelength;
+	  if (*it == '\n') ++m_codelength;
   // identify header
   while(endheader != rule.end() && !foundendheader){
 	  if(*endheader==':') { 
@@ -1092,16 +1090,16 @@ void LsysRule::set( const std::string& rule ){
 	LsysError("Ill-formed Rule : unfound delimiter ':' in "+rule,"",lineno);
   }
   // identify successor code
-  if (arrow)__definition = " --> "+std::string(startcode,rule.end());
-  else __definition =  std::string(startcode,rule.end());
+  if (arrow)m_definition = " --> "+std::string(startcode,rule.end());
+  else m_definition =  std::string(startcode,rule.end());
   // parse header
   std::string header(rule.begin(),endheader);
   parseHeader(header);
-  __hasquery = __predecessor.hasRequestModule() 
-			|| __newleftcontext.hasRequestModule()
-			|| __leftcontext.hasRequestModule()
-			|| __newrightcontext.hasRequestModule()
-			|| __rightcontext.hasRequestModule();
+  m_hasquery = m_predecessor.hasRequestModule() 
+			|| m_newleftcontext.hasRequestModule()
+			|| m_leftcontext.hasRequestModule()
+			|| m_newrightcontext.hasRequestModule()
+			|| m_rightcontext.hasRequestModule();
   // check variables
   if(staticrule) setStatic();
   else {
@@ -1118,9 +1116,9 @@ LsysRule::getCoreCode() {
   std::stringstream res;
   int llineno = 0;
   std::string definition;
-  std::string::const_iterator _beg = __definition.begin();
-  std::string::const_iterator _end = __definition.end();
-  std::string::const_iterator _lastit = __definition.begin();
+  std::string::const_iterator _beg = m_definition.begin();
+  std::string::const_iterator _end = m_definition.end();
+  std::string::const_iterator _lastit = m_definition.begin();
   std::string::const_iterator _it = _lastit;
   while( _it != _end){
 	std::string::const_iterator _cit = _it;
@@ -1228,10 +1226,10 @@ LsysRule::getCoreCode() {
   }
   std::stringstream head;
   head << "def " << functionName() << "(";
-  if(!__formalparameters.empty())
-    for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
-    _it != __formalparameters.end(); ++_it){
-	     if(_it != __formalparameters.begin()) 
+  if(!m_formalparameters.empty())
+    for(std::vector<std::string>::const_iterator _it = m_formalparameters.begin();
+    _it != m_formalparameters.end(); ++_it){
+	     if(_it != m_formalparameters.begin()) 
             head << ',';
 	    head << *_it;
   }
@@ -1303,11 +1301,11 @@ LsysRule::parseHeader( const std::string& header){
   }
   if (!ncg.empty() && !ncd.empty())LsysError("Ill-formed Rule Header : New left and right contexts found : "+header,"",lineno);
 
-  __predecessor = PatternString(pred,lineno);
-  if(!cg.empty())__leftcontext = PatternString(cg,lineno);
-  if(!ncg.empty())__newleftcontext = PatternString(ncg,lineno);
-  if(!cd.empty())__rightcontext = PatternString(cd,lineno);
-  if(!ncd.empty())__newrightcontext = PatternString(ncd,lineno);
+  m_predecessor = PatternString(pred,lineno);
+  if(!cg.empty())m_leftcontext = PatternString(cg,lineno);
+  if(!ncg.empty())m_newleftcontext = PatternString(ncg,lineno);
+  if(!cd.empty())m_rightcontext = PatternString(cd,lineno);
+  if(!ncd.empty())m_newrightcontext = PatternString(ncd,lineno);
 }
 
 
@@ -1574,7 +1572,7 @@ LpyParsing::parse_moddeclist(std::string::const_iterator& beg,
 		                  && *_it != '\n' && *_it != ':' && *_it != '=' 
 		                  && *_it != '('  && *_it != '#'  && *_it != delim) ++_it;
 	  std::string name(bm,_it);
-	  if(name.empty())  LsysSyntaxError("Invalid empty name in declaration of "+TOOLS::number(nb)+" module.");
+	  if(name.empty())  LsysSyntaxError("Invalid empty name in declaration of "+TOOLS(number(nb))+" module.");
 	  else { result.push_back(ModDeclaration(name)); }
 	  while (_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
 	  if(_it == endpos) break;

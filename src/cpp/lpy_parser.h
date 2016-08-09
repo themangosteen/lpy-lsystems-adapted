@@ -28,14 +28,13 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __LPY_PARSER_H__
-#define __LPY_PARSER_H__
+#pragma once
 
 #include "lpy_config.h"
 #include <string>
 #include <vector>
-#include <plantgl/tool/util_types.h>
-#include <plantgl/tool/util_hashmap.h>
+#include "../plantgl/tool/util_types.h"
+#include "../plantgl/tool/util_hashmap.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -161,5 +160,3 @@ public:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

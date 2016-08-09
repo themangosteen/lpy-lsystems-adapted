@@ -35,51 +35,51 @@
 #include "lpy_parser.h"
 #include "matching.h"
 
-LPY_USING_NAMESPACE
 using namespace boost::python;
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
 
 LsysVar::LsysVar(const std::string& n):
-	__name(n),__conditionType(NoCondition){}
+	m_name(n),m_conditionType(NoCondition){}
 
 LsysVar::LsysVar(boost::python::object value):
-	__name(), __pyvalue(value), __conditionType(EqualValueCondition) {}
+	m_name(), m_pyvalue(value), m_conditionType(EqualValueCondition) {}
 
 
 std::string LsysVar::str() const
 { 
-	if (__conditionType == FunctionalCondition) {
-		std::string res(__name);
+	if (m_conditionType == FunctionalCondition) {
+		std::string res(m_name);
 		res += " if ";
-		res += __textualcondition;
+		res += m_textualcondition;
 		return res;
 	}
-	else if(__conditionType == EqualValueCondition) {
-		return extract<std::string>(bp::str(__pyvalue));
+	else if(m_conditionType == EqualValueCondition) {
+		return extract<std::string>(bp::str(m_pyvalue));
 	}
-	return __name; 
+	return m_name; 
 }
 
 
 std::string LsysVar::varname() const
 { 
-  if (__name.empty()) return __name;
-  else if (__name.end() != __name.begin()+1 && __name[0] == '*' && __name[1] == '*') 
-	  return std::string(__name.begin()+2,__name.end());
-  else if (__name[0] == '*') return std::string(__name.begin()+1,__name.end());
-  else return __name;
+  if (m_name.empty()) return m_name;
+  else if (m_name.end() != m_name.begin()+1 && m_name[0] == '*' && m_name[1] == '*') 
+	  return std::string(m_name.begin()+2,m_name.end());
+  else if (m_name[0] == '*') return std::string(m_name.begin()+1,m_name.end());
+  else return m_name;
 }
 
 
 bool LsysVar::isCompatible(const boost::python::object& value) const
 {
-	switch(__conditionType) {
+	switch(m_conditionType) {
 		case EqualValueCondition:
-			return value == __pyvalue;
+			return value == m_pyvalue;
 		case FunctionalCondition:
-			return bp::call<bool>(__pyvalue.ptr(),value);
+			return bp::call<bool>(m_pyvalue.ptr(),value);
 		default:
 			return true;
 	}
@@ -94,17 +94,17 @@ void LsysVar::setCondition(const std::string& textualcondition, int lineno)
 			decal += '\n';
 		txt = decal + txt;
 	}
-	__pyvalue = LsysContext::current()->evaluate(txt);
-	__textualcondition = textualcondition;
-	__conditionType = FunctionalCondition;
+	m_pyvalue = LsysContext::current()->evaluate(txt);
+	m_textualcondition = textualcondition;
+	m_conditionType = FunctionalCondition;
 }
 
 void LsysVar::setUnnamed()
 {
-  if (__name.empty()) __name = "-";
-  else if (__name.end() != __name.begin()+1 && __name[0] == '*' && __name[1] == '*') __name = "**-";
-  else if (__name[0] == '*') __name = "*-";
-  else __name = "-";
+  if (m_name.empty()) m_name = "-";
+  else if (m_name.end() != m_name.begin()+1 && m_name[0] == '*' && m_name[1] == '*') m_name = "**-";
+  else if (m_name[0] == '*') m_name = "*-";
+  else m_name = "-";
 }
 
 /*---------------------------------------------------------------------------*/
@@ -115,12 +115,12 @@ PatternModule::PatternModule(const std::string& name, int lineno): BaseType()
   std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(name,lineno);
   if(parsedstring.size() != 1)LsysError("Invalid query module "+name,"",lineno);
   setClass(parsedstring[0].first);
-  __processPatternModule(parsedstring[0].second,lineno);
+  processPatternModule(parsedstring[0].second,lineno);
 }
 
 PatternModule::PatternModule(size_t classid, const std::string& argstr, int lineno):
 	BaseType(classid) {
-  __processPatternModule(argstr,lineno);
+  processPatternModule(argstr,lineno);
 }
 
 PatternModule::~PatternModule() { }
@@ -202,7 +202,7 @@ size_t PatternModule::getVarNb() const
 	} \
 
 
-void PatternModule::__processPatternModule(const std::string& argstr, int lineno)
+void PatternModule::processPatternModule(const std::string& argstr, int lineno)
 {
   if (getClass() == ModuleClass::RepExp) {
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);

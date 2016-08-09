@@ -1,3 +1,5 @@
+NOTE Summer 2016: This is the changelog of the original L-Py framework. Changes made for this custom version are not documented here. See README.txt.
+
 *July 24th 2009:* version 1.4.0 (rev 6689):
 -------------------------------------------
   

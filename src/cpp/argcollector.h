@@ -28,10 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __arg_collector_h__
-#define __arg_collector_h__
-
-#include <plantgl/python/boost_python.h>
+#pragma once
 
 #ifndef bp
 #define bp boost::python
@@ -69,58 +66,58 @@ inline boost::python::dict toPyDict( const StdArgListType& obj, const std::vecto
 
 class LPY_API PyObjRef {
 public:
-	PyObjRef(): __toDelete(false), __object(NULL) {}
+	PyObjRef(): m_toDelete(false), m_object(NULL) {}
 
 	PyObjRef(const boost::python::object& obj , bool owner = true):
-		__toDelete(owner), __object(owner?NULL:&obj) 
+		m_toDelete(owner), m_object(owner?NULL:&obj) 
 		{ if(owner)copy_obj(obj); }
 
 	PyObjRef(const PyObjRef& other): 
-		__toDelete(other.__toDelete), __object(other.__object) 
-		{ if(__toDelete) copy_obj(*other.__object); }
+		m_toDelete(other.m_toDelete), m_object(other.m_object) 
+		{ if(m_toDelete) copy_obj(*other.m_object); }
 
 	PyObjRef& operator=(const PyObjRef& other) {
-		if(__toDelete  && __object) delete __object;
-		__toDelete = other.__toDelete;
-		if(!__toDelete) __object = other.__object;
-		else copy_obj(*other.__object);
+		if(m_toDelete  && m_object) delete m_object;
+		m_toDelete = other.m_toDelete;
+		if(!m_toDelete) m_object = other.m_object;
+		else copy_obj(*other.m_object);
 		return *this;
 	}
 
-	~PyObjRef() { if(__toDelete  && __object) delete __object; }
+	~PyObjRef() { if(m_toDelete  && m_object) delete m_object; }
 
-	inline const boost::python::object& get() const { return *__object; }
+	inline const boost::python::object& get() const { return *m_object; }
 
 private:
 
 	inline void copy_obj(const boost::python::object& obj) {
-			__object = new bp::object(bp::handle<>(bp::borrowed<>(obj.ptr()))); 
+			m_object = new bp::object(bp::handle<>(bp::borrowed<>(obj.ptr()))); 
 	}
 
-	bool __toDelete;
-    const boost::python::object * __object;
+	bool m_toDelete;
+    const boost::python::object * m_object;
 };
 
 class LPY_API ArgRefList {
 public:
-	ArgRefList(size_t i = 0) : __data(i) { }
+	ArgRefList(size_t i = 0) : m_data(i) { }
 
-	inline size_t size() const { return __data.size(); }
-	inline bool empty() const { return __data.empty(); }
-	inline void reserve(size_t s) { __data.reserve(s); }
-	inline const boost::python::object& operator[](size_t i) const { return __data[i].get(); }
-	inline void push_back(const boost::python::object& obj){ __data.push_back(PyObjRef(obj,true)); }
-	inline void push_back_ref(const boost::python::object& obj){ __data.push_back(PyObjRef(obj,false)); }
-	inline void append(const ArgRefList& l) { __data.insert(__data.end(),l.__data.begin(),l.__data.end()); }
-	inline void prepend(const ArgRefList& l) { __data.insert(__data.begin(),l.__data.begin(),l.__data.end()); }
+	inline size_t size() const { return m_data.size(); }
+	inline bool empty() const { return m_data.empty(); }
+	inline void reserve(size_t s) { m_data.reserve(s); }
+	inline const boost::python::object& operator[](size_t i) const { return m_data[i].get(); }
+	inline void push_back(const boost::python::object& obj){ m_data.push_back(PyObjRef(obj,true)); }
+	inline void push_back_ref(const boost::python::object& obj){ m_data.push_back(PyObjRef(obj,false)); }
+	inline void append(const ArgRefList& l) { m_data.insert(m_data.end(),l.m_data.begin(),l.m_data.end()); }
+	inline void prepend(const ArgRefList& l) { m_data.insert(m_data.begin(),l.m_data.begin(),l.m_data.end()); }
 	inline boost::python::list toPyList() const {
 		boost::python::list res;
-		for(std::vector<PyObjRef>::const_iterator it = __data.begin(); it != __data.end(); ++it)  res.append(it->get());
+		for(std::vector<PyObjRef>::const_iterator it = m_data.begin(); it != m_data.end(); ++it)  res.append(it->get());
 		return res;
 	}
 
 protected:
-	std::vector<PyObjRef> __data;
+	std::vector<PyObjRef> m_data;
 };
 
 inline boost::python::list toPyList( const ArgRefList& obj ) { return obj.toPyList(); }
@@ -140,5 +137,3 @@ typedef ArgRefList ArgList;
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

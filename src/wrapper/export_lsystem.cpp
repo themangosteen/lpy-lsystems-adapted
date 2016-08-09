@@ -28,8 +28,8 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "lsystem.h"
-#include <plantgl/python/export_list.h>
+#include "../cpp/lsystem.h"
+#include "../plantgl/python/export_list.h"
 using namespace boost::python;
 #define bp boost::python
 
@@ -137,11 +137,13 @@ void export_Lsystem(){
 	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&))&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t))&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t,size_t,bool))&Lsystem::derive,(bp::arg("workstring"),bp::arg("starting_iter"),bp::arg("nb_iter"),bp::arg("previouslyinterpreted")=false))
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&))&Lsystem::turtle_interpretation,"Apply interpretation with execContext().turtle.")
 	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree& , PGL::Turtle&))&Lsystem::turtle_interpretation,"Apply interpretation with given turtle.")
 	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with execContext().turtle and return resulting scene.")
 	.def("stepInterpretation", &Lsystem::stepInterpretation,"Apply interpretation step by step and display construction of the scene.")
 	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false),"Apply interpretation with execContext().turtle and plot the resulting scene. If checkLastComputedScene, check whether during last iteration a scene was computed. If yes reuse it.")
+#endif
 	.def("interpret", &Lsystem::interpret,"Apply interpretation rule and gives the resulting string.")
 	.def("nbProductionRules", &Lsystem::nbProductionRules, (bp::arg("group")=0))
 	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules, (bp::arg("group")=0))
@@ -151,7 +153,7 @@ void export_Lsystem(){
 	.def("productionRule", py_productionRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 	.def("decompositionRule", py_decompositionRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 	.def("interpretationRule", py_interpretationRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
-
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	.def("animate", (AxialTree(Lsystem::*)())&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double))&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double,size_t))&Lsystem::animate)
@@ -162,7 +164,7 @@ void export_Lsystem(){
 	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
 	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
 	.def("record",  (void(Lsystem::*)(const std::string&,const AxialTree&,size_t,size_t))&Lsystem::record)
-
+#endif
 	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t, const ConsiderFilterPtr))&Lsystem::addRule, "Add a rule", 
 						 (bp::arg("code"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0,bp::arg("filter")=ConsiderFilterPtr()))
 	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t))&Lsystem::addRule, "Add a rule", 
@@ -187,7 +189,9 @@ void export_Lsystem(){
     // .def("isEarlyReturnEnabled", &Lsystem::isEarlyReturnEnabled, "Tell if an early return is required (for threaded application).")
 	.add_property("early_return",&Lsystem::isEarlyReturnEnabled,&Lsystem::enableEarlyReturn)
 	.def("getLastIterationNb",&Lsystem::getLastIterationNb)
+#ifndef LPY_NO_PLANTGL_INTERPRETATION	
 	.def("getLastComputedScene",&Lsystem::getLastComputedScene)
+#endif
     .def("isRunning",   &Lsystem::isRunning, "Tell whether self is performing an action")
     .def("forceRelease",&Lsystem::forceRelease, "Force release of running state in case of violent ending. Not recommended. Use with care.")
     .def("setDebugger",&py_set_debugger)

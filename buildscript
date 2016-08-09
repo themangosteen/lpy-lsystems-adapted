@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rm -r ./build/*
+cd ./build
+cmake ..
+time make
+mv liblpy.so lpy.so

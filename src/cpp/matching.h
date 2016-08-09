@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __matching_h__
-#define __matching_h__
+#pragma once
 
 #include "axialtree.h"
 #include "patternstring.h"
@@ -234,5 +233,3 @@ public:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

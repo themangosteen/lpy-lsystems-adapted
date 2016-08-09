@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __LSYSOPTIONS_H__
-#define __LSYSOPTIONS_H__
+#pragma once
 
 #include "lpy_config.h"
 #include <string>
@@ -60,11 +59,11 @@ public:
 	LsysOptionDirectSlotValue(const std::string& name, 
 							  DirectSlot slot, 
 							  const std::string& comment = ""):
-		LsysOptionValue(name, comment), __slot(slot) {}
+		LsysOptionValue(name, comment), m_slot(slot) {}
 		
-	DirectSlot __slot;
+	DirectSlot m_slot;
 
-	virtual void activate() {  (*__slot)();  }
+	virtual void activate() {  (*m_slot)();  }
 };
 
 /*---------------------------------------------------------------------------*/
@@ -78,14 +77,14 @@ public:
 					Slot slot, U argument , 
 					const std::string& comment = ""):
 		LsysOptionValue(name, comment),
-			__slot(slot),
-			__argument(argument){
+			m_slot(slot),
+			m_argument(argument){
 		}
 		
-	Slot __slot;
-	U __argument;
+	Slot m_slot;
+	U m_argument;
 
-	virtual void activate() {  (*__slot)(__argument);  }
+	virtual void activate() {  (*m_slot)(m_argument);  }
 };
 
 /*---------------------------------------------------------------------------*/
@@ -100,16 +99,16 @@ public:
 					U argument , 
 					const std::string& comment = ""):
 		LsysOptionValue(name, comment),
-			__obj(obj),
-			__slot(slot),
-			__argument(argument){
+			m_obj(obj),
+			m_slot(slot),
+			m_argument(argument){
 		}
 		
-	T * __obj;
-	Slot __slot;
-	U __argument;
+	T * m_obj;
+	Slot m_slot;
+	U m_argument;
 
-	virtual void activate() {  (__obj->*__slot)(__argument);  }
+	virtual void activate() {  (m_obj->*m_slot)(m_argument);  }
 };
 
 /*---------------------------------------------------------------------------*/
@@ -121,12 +120,12 @@ public:
 	typedef OptionValueList::iterator iterator;
 	typedef OptionValueList::const_iterator const_iterator;
 
-	iterator begin() { return __optionvalues.begin(); }
-	const_iterator begin() const { return __optionvalues.begin(); }
-	iterator end() { return __optionvalues.end(); }
-	const_iterator end() const { return __optionvalues.end(); }
-	size_t size() const { return __optionvalues.size(); }
-	bool empty() const { return __optionvalues.empty(); }
+	iterator begin() { return m_optionvalues.begin(); }
+	const_iterator begin() const { return m_optionvalues.begin(); }
+	iterator end() { return m_optionvalues.end(); }
+	const_iterator end() const { return m_optionvalues.end(); }
+	size_t size() const { return m_optionvalues.size(); }
+	bool empty() const { return m_optionvalues.empty(); }
 
 	LsysOption(const std::string& name, 
 			   const std::string& comment = "",
@@ -137,14 +136,14 @@ public:
 	void addValue(const std::string& name, 
 				  DirectSlot slot,  
 				  const std::string& comment = "")
-	{ __optionvalues.push_back(new LsysOptionDirectSlotValue(name,slot,comment)); }
+	{ m_optionvalues.push_back(new LsysOptionDirectSlotValue(name,slot,comment)); }
 
 	template <class U>
 	void addValue(const std::string& name, 
 				  void (* slot)(U),
 				  U argument,
 				  const std::string& comment = "")
-	{ __optionvalues.push_back(new LsysOptionSlotValue<U>(name,slot,argument,comment)); }
+	{ m_optionvalues.push_back(new LsysOptionSlotValue<U>(name,slot,argument,comment)); }
 
 	template <class T, class U>
 	void addValue(const std::string& name, 
@@ -152,7 +151,7 @@ public:
 				  void (T::* slot)(U),
 				  U argument,
 				  const std::string& comment = "")
-	{ __optionvalues.push_back(new LsysOptionClassSlotValue<T,U>(name,object,slot,argument,comment)); }
+	{ m_optionvalues.push_back(new LsysOptionClassSlotValue<T,U>(name,object,slot,argument,comment)); }
 
 	bool activate(const std::string&);
 	bool activateSelection();
@@ -162,7 +161,7 @@ public:
 	size_t getCurrentValueId() const { return current_value_id; }
 	void setCurrentValueId(size_t);
 
-	const std::string& currentValue() const { return __optionvalues[current_value_id]->name;}
+	const std::string& currentValue() const { return m_optionvalues[current_value_id]->name;}
 
 	size_t defaultValueId() const { return default_value_id; }
 	bool isToDefault() const { return current_value_id == default_value_id; }
@@ -180,7 +179,7 @@ public:
 	size_t default_value_id;
 	bool global;
 	bool enabled;
-	OptionValueList __optionvalues;
+	OptionValueList m_optionvalues;
 
 	typedef void(*UpdateSlot)(size_t value);
 	void connectTo(UpdateSlot);
@@ -189,7 +188,7 @@ protected:
 	void valueChanged(size_t value);
 
 	typedef std::vector<UpdateSlot> UpdateSlotList;
-	UpdateSlotList __connectedSlots;
+	UpdateSlotList m_connectedSlots;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -201,12 +200,12 @@ public:
 	typedef OptionList::iterator iterator;
 	typedef OptionList::const_iterator const_iterator;
 
-	iterator begin() { return __options.begin(); }
-	const_iterator begin() const { return __options.begin(); }
-	iterator end() { return __options.end(); }
-	const_iterator end() const { return __options.end(); }
-	size_t size() const { return __options.size(); }
-	bool empty() const { return __options.empty(); }
+	iterator begin() { return m_options.begin(); }
+	const_iterator begin() const { return m_options.begin(); }
+	iterator end() { return m_options.end(); }
+	const_iterator end() const { return m_options.end(); }
+	size_t size() const { return m_options.size(); }
+	bool empty() const { return m_options.empty(); }
 
 	LsysOptions();
 	~LsysOptions();
@@ -219,11 +218,9 @@ public:
 	LsysOption* find(const std::string& name);
 
 protected:
-	OptionList __options;
+	OptionList m_options;
 };
-
-LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-#endif
+LPY_END_NAMESPACE

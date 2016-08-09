@@ -28,14 +28,14 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "stringmatching.h"
+#include "../cpp/stringmatching.h"
 #include <boost/python.hpp>
 using namespace boost::python;
 LPY_USING_NAMESPACE
 
 
 object values(StringMatching::const_iterator& it){
-    return make_tuple(it.original(),it.target());
+    return boost::python::make_tuple(it.original(),it.target());
 }
 
 object nextValues(StringMatching::const_iterator& it){

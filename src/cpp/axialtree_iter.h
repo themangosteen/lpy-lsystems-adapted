@@ -28,16 +28,13 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __PGL_AXIALTREE_ITER_H__
-#define __PGL_AXIALTREE_ITER_H__
+#pragma once
 
 #include "axialtree.h"
 #include "axialtree_manip.h"
-#include <plantgl/python/exception.h>
-
+#include "../plantgl/python/exception.h"
 
 LPY_BEGIN_NAMESPACE
-
 
 /*---------------------------------------------------------------------------*/
 
@@ -106,5 +103,3 @@ typedef PyLstringIterator<AxialTree> PyAxialTreeIterator;
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

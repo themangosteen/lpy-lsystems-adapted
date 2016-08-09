@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __pattern_module_h__
-#define __pattern_module_h__
+#pragma once
 
 #include "module.h"
 #include "global.h"
@@ -51,32 +50,32 @@ class LPY_API LsysVar {
 
 	std::string str() const;
 
-	inline const std::string& name() const { return __name; }
-	inline void setName(const std::string& n) { __name = n; }
+	inline const std::string& name() const { return m_name; }
+	inline void setName(const std::string& n) { m_name = n; }
 
 	std::string varname() const;
 	bool isCompatible(const boost::python::object& value) const;
 	void setCondition(const std::string& textualcondition, int lineno = -1);
 
-	inline std::string textualcondition() const { return __textualcondition; }
-	inline bool operator==(const LsysVar& other) const { return __name == other.__name; }
+	inline std::string textualcondition() const { return m_textualcondition; }
+	inline bool operator==(const LsysVar& other) const { return m_name == other.m_name; }
 
-	inline const boost::python::object& getPyValue() const { return __pyvalue; }
+	inline const boost::python::object& getPyValue() const { return m_pyvalue; }
 
-    inline bool isNamed() const { return !(__name.empty() || __name[0] == '-' || 
-		                                   (__name[0] == '*' && ( __name[1] == '-' || (__name[1] == '*' && __name[2] == '-')))); }
-	inline bool isArgs() const { return !__name.empty() && __name[0] == '*' && (__name.end() == __name.begin()+1 ||__name[1] != '*'); }
-	inline bool isKwds() const { return !__name.empty() && __name[0] == '*' && __name.end() != __name.begin()+1 && __name[1] == '*'; }
-	inline bool hasCondition() const { return __conditionType != NoCondition; }
+    inline bool isNamed() const { return !(m_name.empty() || m_name[0] == '-' || 
+		                                   (m_name[0] == '*' && ( m_name[1] == '-' || (m_name[1] == '*' && m_name[2] == '-')))); }
+	inline bool isArgs() const { return !m_name.empty() && m_name[0] == '*' && (m_name.end() == m_name.begin()+1 ||m_name[1] != '*'); }
+	inline bool isKwds() const { return !m_name.empty() && m_name[0] == '*' && m_name.end() != m_name.begin()+1 && m_name[1] == '*'; }
+	inline bool hasCondition() const { return m_conditionType != NoCondition; }
 
 	void setUnnamed();
 
   protected:
 
-	std::string __name;
-	ConditionType __conditionType;
-	std::string __textualcondition;
-	boost::python::object __pyvalue;
+	std::string m_name;
+	ConditionType m_conditionType;
+	std::string m_textualcondition;
+	boost::python::object m_pyvalue;
 
 };
 
@@ -106,14 +105,10 @@ public:
   bool match(const std::string&, size_t nbargs) const;*/
 
 protected:
-  void __processPatternModule(const std::string& argstr, int lineno = -1);
+  void processPatternModule(const std::string& argstr, int lineno = -1);
 
 };
 
 /*---------------------------------------------------------------------------*/
 
-
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-#endif

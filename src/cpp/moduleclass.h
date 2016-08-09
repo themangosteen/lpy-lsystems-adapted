@@ -28,19 +28,19 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __LSYS_MODULECLASS_H__
-#define __LSYS_MODULECLASS_H__
+#pragma once
 
 #include "error.h"
 #include <vector>
-#include <plantgl/tool/util_hashmap.h>
-#include <plantgl/tool/rcobject.h>
-#include <plantgl/algo/modelling/turtle.h>
+#include "../plantgl/tool/util_hashmap.h"
+#include "../plantgl/tool/rcobject.h"
 #include "modulevtable.h"
 
-/*---------------------------------------------------------------------------*/
-
 LPY_BEGIN_NAMESPACE
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+#include "../plantgl/algo/modelling/turtle.h"
+#endif
 
 /*---------------------------------------------------------------------------*/
 
@@ -155,7 +155,9 @@ public:
 	inline void desactivate() { activate(false); }
 
 	inline bool isActive() const { return active; }
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	virtual void interpret(ParamModule& m, PGL::Turtle& t) ;
+#endif
 	virtual std::string getDocumentation() const { return ""; }
 	virtual bool isPredefined() const { return false; }
 
@@ -174,13 +176,13 @@ public:
 	inline bool isBracket() const { return isLeftBracket() || isRightBracket() || isExactRightBracket(); }
 
 	inline int getScale() const 
-	{ if (__vtable) return __vtable->scale; 
+	{ if (m_vtable) return m_vtable->scale; 
 	  else return DEFAULT_SCALE; }
 
 	void setScale(int scale);
 
 	inline ModulePropertyPtr getProperty(const std::string& name) const 
-	{ if (__vtable) return __vtable->getProperty(name); else return ModulePropertyPtr(); }
+	{ if (m_vtable) return m_vtable->getProperty(name); else return ModulePropertyPtr(); }
 
 	void setProperty(ModulePropertyPtr prop);
 
@@ -188,17 +190,17 @@ public:
 	ModuleClassList getBases() const;
 
 	inline bool hasBaseClasses() const 
-	{ if (__vtable) return __vtable->hasBaseClasses(); else return false; }
+	{ if (m_vtable) return m_vtable->hasBaseClasses(); else return false; }
 
 	inline bool issubclass(const ModuleClassPtr& other) const
 	{
 		if (other.get() == this) return true;
-		if(__vtable) return __vtable->issubclass(other);
+		if(m_vtable) return m_vtable->issubclass(other);
 		else return false;
 	}
 
 	inline std::vector<size_t> getAllBaseIds() const 
-	{ if (__vtable) return __vtable->getAllBaseIds(); else { return std::vector<size_t>(); } } 
+	{ if (m_vtable) return m_vtable->getAllBaseIds(); else { return std::vector<size_t>(); } } 
 
 	bool removeProperty(const std::string& name);
 	bool isOnlyInPattern() const { return onlyInPattern; }
@@ -209,10 +211,10 @@ public:
 
 	std::vector<std::string> getParameterNames() const;
 
-	const ParameterNameDict& getParameterNameDict() const { return __paramnames; }
+	const ParameterNameDict& getParameterNameDict() const { return m_paramnames; }
 
 	inline size_t getNamedParameterNb() const
-	{ return __paramnames.size(); }
+	{ return m_paramnames.size(); }
 
 	size_t getParameterPosition(const std::string&) const;
 
@@ -230,10 +232,10 @@ private:
 
 	static size_t MAXID;
 
-	ModuleVTablePtr __vtable;
+	ModuleVTablePtr m_vtable;
 	void create_vtable();
 
-	ParameterNameDict __paramnames;
+	ParameterNameDict m_paramnames;
 
 	static const ParameterNameDict * sorter;
 
@@ -333,7 +335,7 @@ protected:
 private:
 	friend class ModuleClassTableGarbageCollector; 
 
-	static ModuleClassTable * __INSTANCE;
+	static ModuleClassTable * m_INSTANCE;
 	ModuleClassTable();
     ~ModuleClassTable();
 };
@@ -341,7 +343,3 @@ private:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-#endif
-

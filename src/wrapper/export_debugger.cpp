@@ -28,13 +28,13 @@
  # ---------------------------------------------------------------------------
  */
 
-#include <plantgl/python/pyobj_reference.h>
-#include <plantgl/python/pyinterpreter.h>
+#include "../plantgl/python/pyobj_reference.h"
+#include "../plantgl/python/pyinterpreter.h"
 
 BOOST_INITIALIZE_WRAPPER_FIX_DECLARE(PyLpyDebugger)
 
-#include <plantgl/python/export_refcountptr.h>
-#include "lsystem.h"
+#include "../plantgl/python/export_refcountptr.h"
+#include "../cpp/lsystem.h"
 using namespace boost::python;
 #define bp boost::python
 
@@ -92,7 +92,7 @@ public:
 			reference_existing_object::apply<LsysRule*>::type ruleconverter;
 			PyObject * ptype, * pvalue, * ptraceback;
 			PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-			object trace = make_tuple(object(handle<>(borrowed<>(allow_null<>(ptype)))),
+			object trace = boost::python::make_tuple(object(handle<>(borrowed<>(allow_null<>(ptype)))),
 				       object(handle<>(borrowed<>(allow_null<>(pvalue)))),
 					   object(handle<>(borrowed<>(allow_null<>(ptraceback)))));
 			PyErr_Clear();
@@ -180,3 +180,4 @@ void export_Debugger(){
 	;
 
 }
+

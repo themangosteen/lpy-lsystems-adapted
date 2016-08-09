@@ -28,9 +28,9 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "abstractlstring.h"
-#include <plantgl/python/boost_python.h>
-#include <plantgl/python/export_list.h>
+#include "../cpp/abstractlstring.h"
+#include "../plantgl/python/export_list.h"
+#include <boost/python.hpp>
 
 
 template<class LString>

@@ -38,7 +38,6 @@ using namespace boost::python;
 
 LPY_BEGIN_NAMESPACE
 
-
 /*---------------------------------------------------------------------------*/
 
 AxialTree::AxialTree():
@@ -56,11 +55,11 @@ AxialTree::AxialTree(const AxialTree& m):
   std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s);
 
   size_t newcapacity = size()+parsedstring.size();
-  if (__conststring().capacity() < newcapacity)
-  __string().reserve(newcapacity);
+  if (conststring().capacity() < newcapacity)
+  string().reserve(newcapacity);
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
-		__string().push_back(ParamModule(it->first,it->second));
+		string().push_back(ParamModule(it->first,it->second));
   }
 }
 
@@ -79,7 +78,7 @@ AxialTree::AxialTree(const boost::python::list& l):
         catch( error_already_set ){ PyErr_Clear(); break; }
         extract<size_t> idext(obj);
 		if (idext.check())
-			__string().push_back(idext());
+			string().push_back(idext());
 		else {
 			extract<std::string> st(obj);
 			if(st.check())
@@ -87,11 +86,11 @@ AxialTree::AxialTree(const boost::python::list& l):
 			else {
 				extract<tuple> tu(obj);
 				if(tu.check())
-					__string().push_back(ParamModule(tu()));
+					string().push_back(ParamModule(tu()));
 				else {
 					extract<AxialTree> ax(obj);
 					if(ax.check()) operator+=(ax());
-					else __string().push_back(extract<ParamModule>(obj)());
+					else string().push_back(extract<ParamModule>(obj)());
 				}
 			}
 		}

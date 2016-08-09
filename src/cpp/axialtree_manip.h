@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __axialtree_manip_h__
-#define __axialtree_manip_h__
+#pragma once
 
 #include "lpy_config.h"
 #include "module.h"
@@ -511,5 +510,3 @@ Iterator next_module_at_level(Iterator pos, int scale, Iterator string_end, bool
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

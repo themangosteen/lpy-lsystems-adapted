@@ -34,11 +34,15 @@
 #include "lpy_parser.h"
 #include "compilation.h"
 #include "tracker.h"
-#include <plantgl/version.h>
 #include <stack>
+
 using namespace boost::python;
 LPY_USING_NAMESPACE
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+#include "../plantgl/version.h"
 PGL_USING(PglTurtle)
+#endif
 /*---------------------------------------------------------------------------*/
 
 const std::string LsysContext::InitialisationFunctionName("__initialiseContext__");
@@ -71,7 +75,7 @@ public:
 		}
 	}
 protected:
-	static ContextGarbageCollector __INSTANCE;
+	static ContextGarbageCollector m_INSTANCE;
 };
 
 void LsysContext::cleanContexts(){
@@ -107,7 +111,7 @@ void createDefaultContext()
 
         
         // import lpy
-        DEFAULT_LSYSCONTEXT->compileInGlobal("from openalea.lpy import *");
+        DEFAULT_LSYSCONTEXT->compileInGlobal("from lpy import *");
         */
    }
 }
@@ -165,21 +169,21 @@ void LsysContext::currentEvent()
 {
 	for(LsysOptions::iterator it = options.begin(); it != options.end(); ++it)
 		(*it)->activateSelection();
-	for(ModuleClassList::const_iterator it = __modules.begin(); it != __modules.end(); ++it)
+	for(ModuleClassList::const_iterator it = m_modules.begin(); it != m_modules.end(); ++it)
 		(*it)->activate();
-	for(ModuleVTableList::const_iterator it = __modulesvtables.begin(); it != __modulesvtables.end(); ++it)
+	for(ModuleVTableList::const_iterator it = m_modulesvtables.begin(); it != m_modulesvtables.end(); ++it)
 		(*it)->activate();
-	for(AliasSet::const_iterator it = __aliases.begin(); it != __aliases.end(); ++it)
+	for(AliasSet::const_iterator it = m_aliases.begin(); it != m_aliases.end(); ++it)
 	    { ModuleClassTable::get().alias(it->first,it->second); }
 }
 
 void LsysContext::doneEvent()
 {
-	for(ModuleClassList::const_iterator it = __modules.begin(); it != __modules.end(); ++it)
+	for(ModuleClassList::const_iterator it = m_modules.begin(); it != m_modules.end(); ++it)
 		(*it)->desactivate();
-	for(ModuleVTableList::const_iterator it = __modulesvtables.begin(); it != __modulesvtables.end(); ++it)
+	for(ModuleVTableList::const_iterator it = m_modulesvtables.begin(); it != m_modulesvtables.end(); ++it)
 		(*it)->desactivate();
-	for(AliasSet::const_iterator it = __aliases.begin(); it != __aliases.end(); ++it)
+	for(AliasSet::const_iterator it = m_aliases.begin(); it != m_aliases.end(); ++it)
 	    { ModuleClassTable::get().remove(it->first); }
 }
 
@@ -196,71 +200,71 @@ void LsysContext::restoreEvent(LsysContext * previousEvent)
 /*---------------------------------------------------------------------------*/
 
 LsysContext::LsysContext():
-__direction(eForward),
-__group(0),
-__selection_always_required(false),
-__selection_requested(false),
-__warn_with_sharp_module(true),
+m_direction(eForward),
+m_group(0),
+m_selection_always_required(false),
+m_selection_requested(false),
+m_warn_with_sharp_module(true),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
-__animation_step(DefaultAnimationTimeStep),
-__animation_enabled(false),
-__iteration_nb(0),
-__nbargs_of_endeach(0),
-__nbargs_of_end(0),
-__nbargs_of_starteach(0),
-__nbargs_of_start(0),
-__early_return(false),
-__early_return_mutex(),
-__paramproductions()
+m_animation_step(DefaultAnimationTimeStep),
+m_animation_enabled(false),
+m_iteration_nb(0),
+m_nbargs_of_endeach(0),
+m_nbargs_of_end(0),
+m_nbargs_of_starteach(0),
+m_nbargs_of_start(0),
+m_early_return(false),
+m_early_return_mutex(),
+m_paramproductions()
 {
 	IncTracker(LsysContext)
 	init_options();
 }
 
 LsysContext::LsysContext(const LsysContext& lsys):
-  __direction(lsys.__direction),
-  __group(lsys.__group),
-  __nproduction(lsys.__nproduction),
-  __selection_always_required(lsys.__selection_always_required),
-  __selection_requested(false),
-  __warn_with_sharp_module(lsys.__warn_with_sharp_module),
+  m_direction(lsys.m_direction),
+  m_group(lsys.m_group),
+  m_nproduction(lsys.m_nproduction),
+  m_selection_always_required(lsys.m_selection_always_required),
+  m_selection_requested(false),
+  m_warn_with_sharp_module(lsys.m_warn_with_sharp_module),
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
-  __animation_step(lsys.__animation_step),
-  __animation_enabled(lsys.__animation_enabled),
-  __iteration_nb(0),
-  __nbargs_of_endeach(0),
-  __nbargs_of_end(0),
-  __nbargs_of_starteach(0),
-  __nbargs_of_start(0),
-  __early_return(false),
-  __early_return_mutex(),
-  __paramproductions()
+  m_animation_step(lsys.m_animation_step),
+  m_animation_enabled(lsys.m_animation_enabled),
+  m_iteration_nb(0),
+  m_nbargs_of_endeach(0),
+  m_nbargs_of_end(0),
+  m_nbargs_of_starteach(0),
+  m_nbargs_of_start(0),
+  m_early_return(false),
+  m_early_return_mutex(),
+  m_paramproductions()
 {
 	IncTracker(LsysContext)
 	init_options();
 }
 
 LsysContext::LsysContext(const boost::python::dict& locals):
-__direction(eForward),
-__group(0),
-__selection_always_required(false),
-__selection_requested(false),
-__warn_with_sharp_module(true),
+m_direction(eForward),
+m_group(0),
+m_selection_always_required(false),
+m_selection_requested(false),
+m_warn_with_sharp_module(true),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
-__animation_step(DefaultAnimationTimeStep),
-__animation_enabled(false),
-__iteration_nb(0),
-__nbargs_of_endeach(0),
-__nbargs_of_end(0),
-__nbargs_of_starteach(0),
-__nbargs_of_start(0),
-__early_return(false),
-__early_return_mutex(),
-__paramproductions(),
-__locals(locals)
+m_animation_step(DefaultAnimationTimeStep),
+m_animation_enabled(false),
+m_iteration_nb(0),
+m_nbargs_of_endeach(0),
+m_nbargs_of_end(0),
+m_nbargs_of_starteach(0),
+m_nbargs_of_start(0),
+m_early_return(false),
+m_early_return_mutex(),
+m_paramproductions(),
+m_locals(locals)
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -268,22 +272,22 @@ __locals(locals)
 LsysContext& 
 LsysContext::operator=(const LsysContext& lsys)
 {
-  __direction = lsys.__direction;
-  __group = lsys.__group;
-  __nproduction = lsys.__nproduction;
-  __selection_always_required = lsys.__selection_always_required;
-  __selection_requested = false;
-  __warn_with_sharp_module = lsys.__warn_with_sharp_module;
+  m_direction = lsys.m_direction;
+  m_group = lsys.m_group;
+  m_nproduction = lsys.m_nproduction;
+  m_selection_always_required = lsys.m_selection_always_required;
+  m_selection_requested = false;
+  m_warn_with_sharp_module = lsys.m_warn_with_sharp_module;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
-  __animation_step =lsys.__animation_step;
-  __animation_enabled =lsys.__animation_enabled;
-  __nbargs_of_endeach =lsys.__nbargs_of_endeach;
-  __nbargs_of_end =lsys.__nbargs_of_end;
-  __nbargs_of_starteach =lsys.__nbargs_of_starteach;
-  __nbargs_of_start =lsys.__nbargs_of_start;
-  __early_return = false;
-  __paramproductions = lsys.__paramproductions;
+  m_animation_step =lsys.m_animation_step;
+  m_animation_enabled =lsys.m_animation_enabled;
+  m_nbargs_of_endeach =lsys.m_nbargs_of_endeach;
+  m_nbargs_of_end =lsys.m_nbargs_of_end;
+  m_nbargs_of_starteach =lsys.m_nbargs_of_starteach;
+  m_nbargs_of_start =lsys.m_nbargs_of_start;
+  m_early_return = false;
+  m_paramproductions = lsys.m_paramproductions;
   return *this;
 }
 
@@ -291,13 +295,13 @@ void
 LsysContext::importContext(const LsysContext& other)
 {
 	// declareModules(other.declaredModules());
-    size_t nb = __modules.size();
+    size_t nb = m_modules.size();
 
-	__modules.insert(__modules.end(),other.__modules.begin(),other.__modules.end()); 
-	__modulesvtables.insert(__modulesvtables.end(),other.__modulesvtables.begin(),other.__modulesvtables.end()); 
+	m_modules.insert(m_modules.end(),other.m_modules.begin(),other.m_modules.end()); 
+	m_modulesvtables.insert(m_modulesvtables.end(),other.m_modulesvtables.begin(),other.m_modulesvtables.end()); 
 
 	bool iscurrent = isCurrent();
-	for(ModuleClassList::iterator it = __modules.begin()+nb; it != __modules.end(); ++it)
+	for(ModuleClassList::iterator it = m_modules.begin()+nb; it != m_modules.end(); ++it)
 	{
 		(*it)->activate(iscurrent);
 	}
@@ -367,7 +371,9 @@ void LsysContext::init_options()
 	option = options.add("Early return when no matching","Set whether the L-systems end prematurely if no matching has occured in the last iteration.","Processing");
 	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
 	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
-	option->setDefault(0);	
+	option->setDefault(0);
+	
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 #if (PGL_VERSION >= 0x020B00)
 	/** warn if turtle has invalid value option */
 	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
@@ -375,6 +381,8 @@ void LsysContext::init_options()
 	option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
 	option->setDefault(turtle.warnOnError());	
 #endif
+#endif
+
 	/** selection required option */
 	option = options.add("Selection Always Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
 	option->addValue("Disabled",this,&LsysContext::setSelectionAlwaysRequired,false,"Disable Selection Check.");
@@ -384,27 +392,27 @@ void LsysContext::init_options()
 
 void 
 LsysContext::clear(){
-  __direction = eForward;
-  __group = 0;
-  __selection_always_required = false;
-  __selection_requested = false;
-  __iteration_nb = 0;
-  __animation_enabled = false;
-  __nbargs_of_endeach = 0;
-  __nbargs_of_end = 0;
-  __nbargs_of_starteach = 0;
-  __nbargs_of_start = 0;
-  __modules.clear();
-  __modulesvtables.clear();
-  __aliases.clear();
-  __paramproductions.clear();
-  __early_return = false;
+  m_direction = eForward;
+  m_group = 0;
+  m_selection_always_required = false;
+  m_selection_requested = false;
+  m_iteration_nb = 0;
+  m_animation_enabled = false;
+  m_nbargs_of_endeach = 0;
+  m_nbargs_of_end = 0;
+  m_nbargs_of_starteach = 0;
+  m_nbargs_of_start = 0;
+  m_modules.clear();
+  m_modulesvtables.clear();
+  m_aliases.clear();
+  m_paramproductions.clear();
+  m_early_return = false;
   clearNamespace();
 }
 
 bool
 LsysContext::empty( ) const {
-  return __modules.empty(); 
+  return m_modules.empty(); 
 }
 /*---------------------------------------------------------------------------*/
 
@@ -419,7 +427,7 @@ LsysContext::declare(const std::string& modules)
 		ModuleClassPtr mod;
 		if(!it->alias){
 			mod = ModuleClassTable::get().declare(it->name);
-			__modules.push_back(mod);
+			m_modules.push_back(mod);
 			if(!it->parameters.empty()){
 				std::vector<std::string> args = LpyParsing::parse_arguments(it->parameters);
 				for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
@@ -434,10 +442,10 @@ LsysContext::declare(const std::string& modules)
 }
 
 void LsysContext::declareModules(const ModuleClassList& other) { 
-	size_t nb = __modules.size();
-	__modules.insert(__modules.end(),other.begin(),other.end()); 
+	size_t nb = m_modules.size();
+	m_modules.insert(m_modules.end(),other.begin(),other.end()); 
 	bool iscurrent = isCurrent();
-	for(ModuleClassList::iterator it = __modules.begin()+nb; it != __modules.end(); ++it)
+	for(ModuleClassList::iterator it = m_modules.begin()+nb; it != m_modules.end(); ++it)
 	{
 		(*it)->activate(iscurrent);
 	}
@@ -459,14 +467,14 @@ LsysContext::undeclare(const std::string& modules)
 void 
 LsysContext::undeclare(ModuleClassPtr module)
 {
-	ModuleClassList::iterator it = std::find(__modules.begin(),__modules.end(),module);
-	if (it == __modules.end()) LsysError("Cannot undeclare module '"+module->name+"'. Not declared in this scope.");
+	ModuleClassList::iterator it = std::find(m_modules.begin(),m_modules.end(),module);
+	if (it == m_modules.end()) LsysError("Cannot undeclare module '"+module->name+"'. Not declared in this scope.");
 	else { 
-			__modules.erase(it); 
-			if(module->__vtable){
+			m_modules.erase(it); 
+			if(module->m_vtable){
 				ModuleVTableList::iterator it = 
-					find(__modulesvtables.begin(),__modulesvtables.end(),module->__vtable);
-				__modulesvtables.erase(it);
+					find(m_modulesvtables.begin(),m_modulesvtables.end(),module->m_vtable);
+				m_modulesvtables.erase(it);
 			}
 			if (isCurrent())module->desactivate(); 
 		 }
@@ -482,12 +490,12 @@ bool LsysContext::isDeclared(const std::string& module)
 
 bool LsysContext::isDeclared(ModuleClassPtr module)
 {
-	ModuleClassList::iterator it = std::find(__modules.begin(),__modules.end(),module);
-	return it != __modules.end();
+	ModuleClassList::iterator it = std::find(m_modules.begin(),m_modules.end(),module);
+	return it != m_modules.end();
 }
 
 void LsysContext::declareAlias(const std::string& alias, ModuleClassPtr module)
-{ __aliases[alias] = module; }
+{ m_aliases[alias] = module; }
 
 void LsysContext::setModuleScale(const std::string& modules, int scale)
 {
@@ -507,14 +515,14 @@ void LsysContext::setModuleScale(const std::string& modules, int scale)
 
 bool 
 LsysContext::hasObject(const std::string& name) const{
-  if (__locals.has_key(name)) return true;  
+  if (m_locals.has_key(name)) return true;  
   return PyDict_Contains(globals(),object(name).ptr());
 }
 
 object
 LsysContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const
 {
-  if (__locals.has_key(name)) return __locals.get(name,defaultvalue);
+  if (m_locals.has_key(name)) return m_locals.get(name,defaultvalue);
   handle<> res(allow_null(PyDict_GetItemString(globals(),name.c_str())));
   if(res) return object(handle<>(borrowed(res.get())));
   return defaultvalue;
@@ -524,7 +532,7 @@ void
 LsysContext::setObject(const std::string& name, 
 					   const boost::python::object& o)
 {
-  __locals[name] = o;
+  m_locals[name] = o;
 }
 
 void 
@@ -538,7 +546,7 @@ LsysContext::setObjectToGlobals(const std::string& name,
 
 void 
 LsysContext::delObject(const std::string& name) {
-  if (__locals.has_key(name)) __locals[name].del();
+  if (m_locals.has_key(name)) m_locals[name].del();
   else PyDict_DelItemString(globals(),name.c_str());
 }
 
@@ -548,7 +556,7 @@ LsysContext::copyObject(const std::string& name, LsysContext * sourceContext)
 	if (!sourceContext) return false;
 	boost::python::object obj = sourceContext->getObject(name);
 	if (obj == object()) return false;
-	__locals[name] = obj;
+	m_locals[name] = obj;
 	return true;
 	// PyObject * obj = PyDict_GetItemString(sourceContext->Namespace(),name.c_str());
 }
@@ -587,7 +595,7 @@ LsysContext::getNamespace(boost::python::dict& d) const{
 
 void
 LsysContext::clearNamespace() {
-	__locals.clear();
+	m_locals.clear();
 	// PyDict_Clear(globals());
 	namespaceInitialisation();
 }
@@ -599,9 +607,9 @@ LsysContext::namespaceInitialisation()
 		setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
 
    if (!hasObject("nproduce")){
-	   Compilation::compile("from openalea.lpy import *",globals(),globals());
+	   Compilation::compile("from lpy import *",globals(),globals());
 
-	   /* handle<>  lpymodule (borrowed( PyModule_GetDict(PyImport_AddModule("openalea.lpy"))));
+	   /* handle<>  lpymodule (borrowed( PyModule_GetDict(PyImport_AddModule("lpy"))));
 		PyDict_Update(globals(),lpymodule.get());
 		PyDict_DelItemString(globals(),"__file__");
 		PyDict_DelItemString(globals(),"__doc__");
@@ -614,7 +622,7 @@ LsysContext::namespaceInitialisation()
 std::string 
 LsysContext::str() const {
   std::stringstream s;
-  s << "<LsysContext instance at " << this << " with " << __modules.size() << " declared modules>";
+  s << "<LsysContext instance at " << this << " with " << m_modules.size() << " declared modules>";
   return s.str();
 }
 
@@ -696,10 +704,11 @@ boost::python::object
 LsysContext::end(AxialTree& lstring)
 { return controlMethod("End",lstring); }
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 boost::python::object
 LsysContext::end(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("End",lstring,scene); }
-
+#endif
 
 boost::python::object  
 LsysContext::startEach(){
@@ -725,9 +734,11 @@ boost::python::object
 LsysContext::endEach(AxialTree& lstring)
 { return controlMethod("EndEach",lstring); }
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 boost::python::object
 LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("EndEach",lstring,scene); }
+#endif
 
 AxialTree
 LsysContext::startInterpretation(){
@@ -774,6 +785,7 @@ LsysContext::controlMethod(const std::string& name, AxialTree& lstring){
   return object();
 }
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 boost::python::object
 LsysContext::controlMethod(const std::string& name, AxialTree& lstring, const PGL::ScenePtr& scene)
 {
@@ -786,15 +798,16 @@ LsysContext::controlMethod(const std::string& name, AxialTree& lstring, const PG
   }
   return object();
 }
+#endif
 
 
 bool LsysContext::initialise()
 {
   ContextMaintainer c(this);
-  return __initialise();
+  return m_initialise();
 }
 
-bool LsysContext::__initialise()
+bool LsysContext::m_initialise()
 {
   reference_existing_object::apply<LsysContext*>::type converter;
   PyObject* obj = converter( this );
@@ -808,13 +821,13 @@ bool LsysContext::__initialise()
 }
 
 
-size_t LsysContext::__initialiseFrom(const std::string& lcode)
+size_t LsysContext::m_initialiseFrom(const std::string& lcode)
 {
 	ContextMaintainer c(this);
 	size_t pos = lcode.find(LpyParsing::InitialisationBeginTag);
 	if (pos != std::string::npos) {
 		compile(std::string(lcode.begin()+pos,lcode.end()));
-		__initialise();
+		m_initialise();
 		return pos;
 	}
 	return std::string::npos;
@@ -869,34 +882,34 @@ LsysContext::check_init_functions()
 {
 	if (hasObject("StartEach")) {
 		try {
-			__nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
 		}
-		catch (...) { PyErr_Clear(); __nbargs_of_starteach = 0; }
+		catch (...) { PyErr_Clear(); m_nbargs_of_starteach = 0; }
 	}
-	else __nbargs_of_starteach = 0;
+	else m_nbargs_of_starteach = 0;
 
 	if (hasObject("Start")) {
 		try {
-			__nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
 		}
-		catch (...) { PyErr_Clear(); __nbargs_of_start = 0; }
+		catch (...) { PyErr_Clear(); m_nbargs_of_start = 0; }
 	}
-	else __nbargs_of_start = 0;
+	else m_nbargs_of_start = 0;
 
 	if (hasObject("EndEach")) {
 		try {
-			__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
 		}
-		catch (...) { PyErr_Clear(); __nbargs_of_endeach = 0; }
+		catch (...) { PyErr_Clear(); m_nbargs_of_endeach = 0; }
 	}
-	else __nbargs_of_endeach = 0;
+	else m_nbargs_of_endeach = 0;
 	if (hasObject("End")) {
 		try {
-			__nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
 		}
-		catch (...) { PyErr_Clear(); __nbargs_of_end = 0; }
+		catch (...) { PyErr_Clear(); m_nbargs_of_end = 0; }
 	}
-	else __nbargs_of_end = 0;
+	else m_nbargs_of_end = 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -904,14 +917,14 @@ LsysContext::check_init_functions()
 
 size_t LsysContext::getIterationNb()
 {
-    QReadLocker ml(&__iteration_nb_lock);
-	return __iteration_nb;
+    QReadLocker ml(&m_iteration_nb_lock);
+	return m_iteration_nb;
 }
 
 void LsysContext::setIterationNb(size_t val)
 {
-    QWriteLocker ml(&__iteration_nb_lock);
-    __iteration_nb = val; 
+    QWriteLocker ml(&m_iteration_nb_lock);
+    m_iteration_nb = val; 
 }
 
 /*---------------------------------------------------------------------------*/
@@ -919,35 +932,35 @@ void LsysContext::setIterationNb(size_t val)
 double 
 LsysContext::get_animation_timestep()
 {
-    QReadLocker ml(&__animation_step_mutex);
-    return __animation_step;
+    QReadLocker ml(&m_animation_step_mutex);
+    return m_animation_step;
 }
 
 void 
 LsysContext::set_animation_timestep(double value)
 {
-    QWriteLocker ml(&__animation_step_mutex);
-    __animation_step = value;
+    QWriteLocker ml(&m_animation_step_mutex);
+    m_animation_step = value;
 }
 
 bool 
 LsysContext::is_animation_timestep_to_default()
 {
-    QReadLocker ml(&__animation_step_mutex);
-    return fabs(__animation_step - DefaultAnimationTimeStep) < GEOM_EPSILON;
+    QReadLocker ml(&m_animation_step_mutex);
+    return fabs(m_animation_step - DefaultAnimationTimeStep) < GEOM_EPSILON;
 }
 
 /*---------------------------------------------------------------------------*/
 
 bool 
 LsysContext::isSelectionAlwaysRequired() const
-{ return __selection_always_required; }
+{ return m_selection_always_required; }
 
 void 
 LsysContext::setSelectionAlwaysRequired(bool enabled)
 { 
-	if (__selection_always_required != enabled){
-		__selection_always_required = enabled; 
+	if (m_selection_always_required != enabled){
+		m_selection_always_required = enabled; 
 		options.setSelection("Selection Always Required",(size_t)enabled);
 	}
 }
@@ -957,9 +970,9 @@ LsysContext::setSelectionAlwaysRequired(bool enabled)
 void 
 LsysContext::setWarnWithSharpModule(bool enabled)
 { 
-	if (__warn_with_sharp_module != enabled){
-		__warn_with_sharp_module = enabled; 
-		options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
+	if (m_warn_with_sharp_module != enabled){
+		m_warn_with_sharp_module = enabled; 
+		options.setSelection("Warning with sharp module",(size_t)m_warn_with_sharp_module);
 	}
 }
 
@@ -967,41 +980,41 @@ LsysContext::setWarnWithSharpModule(bool enabled)
 
 void LsysContext::enableEarlyReturn(bool val) 
 { 
-    QWriteLocker ml(&__early_return_mutex);
-    __early_return = val; 
+    QWriteLocker ml(&m_early_return_mutex);
+    m_early_return = val; 
 }
 
 bool LsysContext::isEarlyReturnEnabled() 
 { 
-    QReadLocker ml(&__early_return_mutex);
-    return __early_return; 
+    QReadLocker ml(&m_early_return_mutex);
+    return m_early_return; 
 }
 
 /*---------------------------------------------------------------------------*/
 
 bool LsysContext::pInLeftContext(size_t pid, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InLeftContext");
-	return __lstringmatcher->pInLeftContext(pid, res);
+	if (is_null_ptr(m_lstringmatcher)) LsysError("Cannot call InLeftContext");
+	return m_lstringmatcher->pInLeftContext(pid, res);
 }
 
 bool LsysContext::inLeftContext(const PatternString& pattern, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inLeftContext");
-	return __lstringmatcher->inLeftContext(pattern, res);
+	if (is_null_ptr(m_lstringmatcher)) LsysError("Cannot call inLeftContext");
+	return m_lstringmatcher->inLeftContext(pattern, res);
 }
 
 
 bool LsysContext::pInRightContext(size_t pid, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InRightContext");
-	return __lstringmatcher->pInRightContext(pid, res);
+	if (is_null_ptr(m_lstringmatcher)) LsysError("Cannot call InRightContext");
+	return m_lstringmatcher->pInRightContext(pid, res);
 }
 
 bool LsysContext::inRightContext(const PatternString& pattern, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inRightContext");
-	return __lstringmatcher->inRightContext(pattern, res);
+	if (is_null_ptr(m_lstringmatcher)) LsysError("Cannot call inRightContext");
+	return m_lstringmatcher->inRightContext(pattern, res);
 }
 
 
@@ -1009,14 +1022,14 @@ bool LsysContext::inRightContext(const PatternString& pattern, boost::python::di
 
 LocalContext::LocalContext(const boost::python::dict& globals):
   LsysContext(globals),
-  __globals(globals)
+  m_globals(globals)
 { 
    namespaceInitialisation();
 }
 
 LocalContext::LocalContext(const boost::python::dict& locals, const boost::python::dict& globals):
   LsysContext(locals),
-  __globals(globals)
+  m_globals(globals)
 { 
    namespaceInitialisation();
 }
@@ -1045,20 +1058,20 @@ LocalContext::~LocalContext()
 
 void
 LocalContext::clearNamespace() {
-  __locals.clear();
+  m_locals.clear();
   namespaceInitialisation();
 }
 
 
 PyObject * 
 LocalContext::globals() const 
-{ return __globals.ptr(); }
+{ return m_globals.ptr(); }
 
 /*---------------------------------------------------------------------------*/
 
 GlobalContext::GlobalContext():
   LsysContext(){
-    __globals = handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__main__"))));
+    m_globals = handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__main__"))));
 }
 
 GlobalContext::~GlobalContext()
@@ -1072,10 +1085,10 @@ GlobalContext::~GlobalContext()
 
 PyObject * 
 GlobalContext::globals()  const 
-{ return __globals.get(); }
+{ return m_globals.get(); }
 
 
-boost::python::object GlobalContext::__reprFunc;
+boost::python::object GlobalContext::m_reprFunc;
 
 boost::python::object bprepr(boost::python::object obj)
 {
@@ -1084,10 +1097,10 @@ boost::python::object bprepr(boost::python::object obj)
 
 boost::python::object 
 GlobalContext::getFunctionRepr() {
-	if(__reprFunc == boost::python::object()){
-		__reprFunc =  boost::python::make_function(bprepr);
+	if(m_reprFunc == boost::python::object()){
+		m_reprFunc =  boost::python::make_function(bprepr);
     }
-	return __reprFunc;
+	return m_reprFunc;
 }
 
 

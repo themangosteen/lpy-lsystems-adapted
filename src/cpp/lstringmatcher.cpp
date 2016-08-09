@@ -29,6 +29,7 @@
 */
 
 #include "lstringmatcher.h"
+#include "lsyscontext.h"
 #include "matching.h"
 
 LPY_USING_NAMESPACE

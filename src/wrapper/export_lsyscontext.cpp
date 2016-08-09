@@ -28,21 +28,23 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "lsyscontext.h"
-#include "compilation.h"
-#include "patternstring.h"
+#include "../cpp/lsyscontext.h"
+#include "../cpp/compilation.h"
+#include "../cpp/patternstring.h"
 #include <boost/python/make_constructor.hpp>
-#include <plantgl/python/export_list.h>
 #include <boost/python/raw_function.hpp>
+#include "../plantgl/python/export_list.h"
 
 using namespace boost::python;
 #define bp boost::python
 LPY_USING_NAMESPACE
-PGL_USING_NAMESPACE
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+PGL_USING_NAMESPACE
 PglTurtle * lsc_turtle(LsysContext * l){
   return &(l->turtle);
 }
+#endif
 
 void py_backward() { LsysContext::currentContext()->backward(); }
 void py_forward() { LsysContext::currentContext()->forward(); }
@@ -114,7 +116,9 @@ void export_LsysContext(){
     class_<LsysContext,boost::noncopyable>
 	("LsysContext", "Lsystem Execution Context", no_init ) // <>("LsysContext()"))
 	.def( "__init__", make_constructor( &create_a_context ), "LsysContext()" ) 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	.add_property("turtle",make_getter(&LsysContext::turtle,return_value_policy<reference_existing_object>()))
+#endif
 	.add_static_property("InitialisationFunctionName",&getInitialisationFunctionName)
 	.add_property("animation_timestep",&LsysContext::get_animation_timestep,&LsysContext::set_animation_timestep)
 	.add_property("options",make_getter(&LsysContext::options,return_value_policy<reference_existing_object>()))

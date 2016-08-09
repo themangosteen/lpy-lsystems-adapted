@@ -28,13 +28,16 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "moduleclass.h"
-#include "lpy_parser.h"
-#include <plantgl/tool/util_string.h>
-#include <plantgl/scenegraph/pgl_version.h>
-#include <plantgl/python/export_list.h>
-#include <plantgl/python/extract_list.h>
-#include <plantgl/python/export_refcountptr.h>
+#include "../cpp/moduleclass.h"
+#include "../cpp/lpy_parser.h"
+#include "../plantgl/tool/util_string.h"
+#include "../plantgl/python/export_list.h"
+#include "../plantgl/python/extract_list.h"
+#include "../plantgl/python/export_refcountptr.h"
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+#include "../plantgl/scenegraph/pgl_version.h"
+#endif
 
 using namespace boost::python;
 #define bp boost::python

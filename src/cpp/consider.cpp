@@ -114,34 +114,34 @@ bool ConsiderFilter::isNoneCurrent()
 /*---------------------------------------------------------------------------*/
 
 ConsiderFilter::ConsiderFilter(const std::string& modules, eConsiderMethod method):
-RefCountObject(), __method(method) {
+RefCountObject(), m_method(method) {
   if(!modules.empty()){
 	AxialTree t(modules);
 	for(AxialTree::const_iterator _it = t.begin(); _it != t.end(); ++_it)
-	  __keyword[_it->getClass()->getId()] = _it->getClass();
+	  m_keyword[_it->getClass()->getId()] = _it->getClass();
   }
 }
 
 
 bool
 ConsiderFilter::isIgnored(const ModuleClassPtr moduleclass) const{
-  if(__keyword.empty())return false;
-  ModuleClassSet::const_iterator _it = __keyword.find(moduleclass->getId());
-  if(__method == eIgnore) return _it != __keyword.end();
+  if(m_keyword.empty())return false;
+  ModuleClassSet::const_iterator _it = m_keyword.find(moduleclass->getId());
+  if(m_method == eIgnore) return _it != m_keyword.end();
   else { 
-	  if (_it != __keyword.end()) return false;
+	  if (_it != m_keyword.end()) return false;
 	  else return !moduleclass->isBracket(); // by default we consider always bracket
-	  // return _it == __keyword.end();
+	  // return _it == m_keyword.end();
   }
 }
 
 std::string
 ConsiderFilter::keyword() const{
-  if(__keyword.empty())return std::string("");
+  if(m_keyword.empty())return std::string("");
   std::string res;
-  for(ModuleClassSet::const_iterator _it = __keyword.begin();
-	  _it != __keyword.end(); ++_it){
-		  if (_it != __keyword.begin()) res += " ";
+  for(ModuleClassSet::const_iterator _it = m_keyword.begin();
+	  _it != m_keyword.end(); ++_it){
+		  if (_it != m_keyword.begin()) res += " ";
 		  res += _it->second->name;
   }
   return res;
@@ -149,8 +149,8 @@ ConsiderFilter::keyword() const{
 
 std::string
 ConsiderFilter::str() const{
-  if(__keyword.empty())return std::string("");
-  std::string res = (__method == eConsider?"consider: ":"ignore: ");
+  if(m_keyword.empty())return std::string("");
+  std::string res = (m_method == eConsider?"consider: ":"ignore: ");
   res += keyword();
   return res;
 }	

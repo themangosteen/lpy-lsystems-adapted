@@ -27,16 +27,18 @@
  #
  # ---------------------------------------------------------------------------
  */
+ 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 
-#include "plot.h"
-#include "axialtree.h"
+#include "../cpp/plot.h"
+#include "../cpp/axialtree.h"
 
 #include <boost/python.hpp>
-#include <plantgl/scenegraph/pgl_version.h>
+#include "../plantgl/scenegraph/pgl_version.h"
 #if PGL_VERSION < 0x020700
 #error You should upgrade your version of PlantGL
 #endif
-#include <plantgl/python/extract_list.h>
+#include "../plantgl/python/extract_list.h"
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -116,3 +118,5 @@ void export_plot()
   def("cleanPlotter",&pyCleanPlotter);
 
 }
+
+#endif

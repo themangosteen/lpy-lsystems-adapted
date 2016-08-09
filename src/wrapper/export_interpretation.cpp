@@ -28,8 +28,10 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "interpretation.h"
-#include "axialtree.h"
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+
+#include "../cpp/interpretation.h"
+#include "../cpp/axialtree.h"
 
 #include <boost/python.hpp>
 using namespace boost::python;
@@ -43,3 +45,5 @@ void export_Interpretation()
   def("turtle_interpretation",(void(*)(AxialTree&,Turtle&))&LPY::turtle_interpretation);
   def("turtle_interpretation",(void(*)(AxialTree&,Turtle&,const StringMatching&))&LPY::turtle_interpretation);
 }
+
+#endif

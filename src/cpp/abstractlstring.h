@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __lpy_abstractlstring_h__
-#define __lpy_abstractlstring_h__
+#pragma once
 
 #include <vector>
 #include <functional>
@@ -83,64 +82,64 @@ private:
 	 typedef typename ModuleList::const_iterator const_iterator;
 
 	 LSInternal() : 
-		QSharedData(), __string() {}
+		QSharedData(), m_string() {}
 	 LSInternal(const LSInternal& other) : 
-		QSharedData(other), __string(other.__string) {}
+		QSharedData(other), m_string(other.m_string) {}
 	 LSInternal(const ModuleType& m): 
-		QSharedData(),__string(1,m) {}
+		QSharedData(),m_string(1,m) {}
      LSInternal(const_iterator beg, const_iterator end) : 
-			QSharedData(), __string(beg,end) {}
+			QSharedData(), m_string(beg,end) {}
      ~LSInternal() {}
 
-     ModuleList __string;
+     ModuleList m_string;
  };
 
 
  typedef LSInternal<AbstractLString<typename AbstractLString::element_type> > AbstractLStringInternal;
  typedef QSharedDataPointer<AbstractLStringInternal> AbstractLStringInternalPtr;
 
- AbstractLStringInternalPtr __data;
+ AbstractLStringInternalPtr m_data;
 
 protected:
- const ModuleList& __conststring() const { return __data->__string; }
- const ModuleList& __string() const { return __data->__string; }
- ModuleList& __string()  { return __data->__string; }
- void resetString()  { __data = AbstractLStringInternalPtr(new AbstractLStringInternal()); }
+ const ModuleList& conststring() const { return m_data->m_string; }
+ const ModuleList& string() const { return m_data->m_string; }
+ ModuleList& string()  { return m_data->m_string; }
+ void resetString()  { m_data = AbstractLStringInternalPtr(new AbstractLStringInternal()); }
  
 public:
 
   AbstractLString() : 
-	__data(new AbstractLStringInternal()) {}
+	m_data(new AbstractLStringInternal()) {}
 
   AbstractLString(const AbstractLStringType& other) : 
-	__data(other.__data) {}
+	m_data(other.m_data) {}
 
   AbstractLString(const Module& mod) : 
-	__data(new AbstractLStringInternal(mod)) {}
+	m_data(new AbstractLStringInternal(mod)) {}
 
   AbstractLString(const_iterator beg, const_iterator end) : 
-	__data(new AbstractLStringInternal(beg,end)) {}
+	m_data(new AbstractLStringInternal(beg,end)) {}
 
   ~AbstractLString() { }
  
 
   /// Returns an iterator at the beginning of \e self.
-  inline iterator begin() { return __string().begin(); }
+  inline iterator begin() { return string().begin(); }
 
   /// Returns an iterator at the beginning of \e self.
-  inline const_iterator begin() const { return __conststring().begin(); }
+  inline const_iterator begin() const { return conststring().begin(); }
 
   /// Returns an iterator at the beginning of \e self.
-  inline const_iterator const_begin() const { return __conststring().begin(); }
+  inline const_iterator const_begin() const { return conststring().begin(); }
 
   /// Returns an iterator at the end of \e self.
-  inline iterator end() { return __string().end(); }
+  inline iterator end() { return string().end(); }
 
   /// Returns a const iterator at the end of \e self.
-  inline const_iterator end() const { return __conststring().end(); }
+  inline const_iterator end() const { return conststring().end(); }
 
   /// Returns a const iterator at the end of \e self.
-  inline const_iterator const_end() const { return __conststring().end(); }
+  inline const_iterator const_end() const { return conststring().end(); }
 
   inline bool isEnd(const_iterator it) const
   { return (const_end() == it); }
@@ -149,22 +148,22 @@ public:
   { return (const_begin() == it); }
 
   /// Returns an iterator at the beginning of \e self.
-  inline reverse_iterator rbegin() { return __string().rbegin(); }
+  inline reverse_iterator rbegin() { return string().rbegin(); }
 
   /// Returns an iterator at the beginning of \e self.
-  inline const_reverse_iterator rbegin() const { return __conststring().rbegin(); }
+  inline const_reverse_iterator rbegin() const { return conststring().rbegin(); }
 
   /// Returns an iterator at the beginning of \e self.
-  inline const_reverse_iterator const_rbegin() const { return __conststring().rbegin(); }
+  inline const_reverse_iterator const_rbegin() const { return conststring().rbegin(); }
 
   /// Returns an iterator at the end of \e self.
-  inline reverse_iterator rend() { return __string().rend(); }
+  inline reverse_iterator rend() { return string().rend(); }
 
   /// Returns a const iterator at the end of \e self.
-  inline const_reverse_iterator rend() const { return __conststring().rend(); }
+  inline const_reverse_iterator rend() const { return conststring().rend(); }
 
   /// Returns a const iterator at the end of \e self.
-  inline const_reverse_iterator const_rend() const { return __conststring().rend(); }
+  inline const_reverse_iterator const_rend() const { return conststring().rend(); }
 
   inline bool isReverseEnd(const_reverse_iterator it) const
   { return (const_rend() == it); }
@@ -173,18 +172,18 @@ public:
   { return (const_rbegin() == it); }
 
   inline void append(const Module& m)
-  {  __string().push_back(m); }
+  {  string().push_back(m); }
 
   template<class StringType>
   inline void append(const StringType& s)
-  {  __string().insert(end(),s.const_begin(),s.const_end()); }
+  {  string().insert(end(),s.const_begin(),s.const_end()); }
 
   inline void prepend(const Module& m)
-  { __string().insert(begin(),m); }
+  { string().insert(begin(),m); }
 
   template<class StringType>
   inline void prepend(const StringType& s)
-  { __string().insert(begin(),s.const_begin(),s.const_end()); }
+  { string().insert(begin(),s.const_begin(),s.const_end()); }
 
   template<class StringType>
   inline AbstractLString<Module> operator+=(const StringType& s)
@@ -203,19 +202,19 @@ public:
   { mult(i); return *this; }
 
   inline const Module& operator[](size_t i) const
-  { return __conststring()[i]; }
+  { return conststring()[i]; }
 
   inline Module& operator[](size_t i)
-  { return __string()[i]; }
+  { return string()[i]; }
 
   inline const Module& getAt(size_t i) const
-  {  return __conststring()[i]; }
+  {  return conststring()[i]; }
 
   inline Module& getAt(size_t i)
-  {  return __string()[i]; }
+  {  return string()[i]; }
 
   inline const Module& getItemAt(int i) const
-  { return __conststring()[getValidIndex(i)]; }
+  { return conststring()[getValidIndex(i)]; }
 
   template<class StringType>
   inline StringType getRange(size_t ri, size_t rj) const
@@ -228,18 +227,18 @@ public:
   }
 
   inline void setAt(size_t i, const Module& m)
-  {  __string()[i] = m; }
+  {  string()[i] = m; }
 
   inline void setItemAt(int i, const Module& m)
-  {  __string()[getValidIndex(i)] = m;   }
+  {  string()[getValidIndex(i)] = m;   }
 
   inline void insertItemAt(int i, const Module& m)
   {
     size_t len = size();
     if( i < 0 ) i+=len;
     if (i < 0  || i >= len) throw PythonExc_IndexError("index out of range");
-    if( i == len) __string().push_back(m);
-    else __string().insert(begin()+i,m);
+    if( i == len) string().push_back(m);
+    else string().insert(begin()+i,m);
   }
 
   template<class StringType>
@@ -248,46 +247,46 @@ public:
     size_t len = size();
     if( i < 0 ) i+=len;
     if (i < 0  || i >= len) throw PythonExc_IndexError("index out of range");
-    __string().insert(begin()+i,s.const_begin(),s.const_end());
+    string().insert(begin()+i,s.const_begin(),s.const_end());
   }
 
   inline void insertAt(size_t i, const Module& m)
-  {  __string().insert(begin()+i,m); }
+  {  string().insert(begin()+i,m); }
 
   template<class StringType>
   inline void insertAt(size_t i, const StringType& m)
-  {  __string().insert(begin()+i,m.const_begin(),m.const_end()); }
+  {  string().insert(begin()+i,m.const_begin(),m.const_end()); }
 
   inline void insertAt(iterator pos, const_iterator _beg, const_iterator _end)
-  {  __string().insert(pos,_beg,_end); }
+  {  string().insert(pos,_beg,_end); }
 
   inline void push_back(const_iterator _beg, const_iterator _end)
-  {  __string().insert(end(),_beg,_end);  }
+  {  string().insert(end(),_beg,_end);  }
 
   inline void push_back(const_iterator pos)
-  { __string().push_back(*pos); }
+  { string().push_back(*pos); }
 
   inline void push_front(const_iterator _beg, const_iterator _end)
-  {  __string().insert(begin(),_beg,_end);  }
+  {  string().insert(begin(),_beg,_end);  }
 
   inline void push_front(const_iterator pos)
-  {  __string().insert(begin(),pos,pos+1);  }
+  {  string().insert(begin(),pos,pos+1);  }
 
   inline void erase(iterator pos)
-  {  __string().erase(pos);  }
+  {  string().erase(pos);  }
 
   inline void removeItemAt(int i)
-  { __string().erase(begin()+getValidIndex(i)); }
+  { string().erase(begin()+getValidIndex(i)); }
 
   inline void removeRange(int i, int j)
   {
 	size_t ri, rj; getValidIndices(i,j,ri,rj) ; 
-	__string().erase(begin()+ri,begin()+rj);
+	string().erase(begin()+ri,begin()+rj);
   }
 
-  inline bool empty() const { return __conststring().empty(); }
-  inline size_t size() const { return __conststring().size(); }
-  inline void reserve(size_t s) { return __string().reserve(s); }
+  inline bool empty() const { return conststring().empty(); }
+  inline size_t size() const { return conststring().size(); }
+  inline void reserve(size_t s) { return string().reserve(s); }
   inline void clear() { resetString(); }
 
   template<class Equal /*= std::equal_to<Module>*/ >
@@ -349,11 +348,11 @@ public:
   inline std::vector<const_iterator> components_at_scale(const_iterator pos, int scale) const
   { return LPY::components_at_scale(pos,scale,const_end()); }
 
-  //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
+  // Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
   inline const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const
   { return LPY::endBracket(pos,const_end(),startingBeforePos); }
 
-  //!  Return iterator on beginBracket '[' or begin of string. If pos is on a ']', startingAfterPos allows to say if search should start from just after the ']' or after.
+  // Return iterator on beginBracket '[' or begin of string. If pos is on a ']', startingAfterPos allows to say if search should start from just after the ']' or after.
   inline const_iterator beginBracket(const_iterator pos, bool startingAfterPos = false) const
   { return LPY::beginBracket(pos,const_begin(),const_end(),startingAfterPos); }
 
@@ -383,10 +382,10 @@ public:
   inline bool operator!=(const AbstractLStringType& other) const { return !operator==(other); }
   bool operator==(const AbstractLStringType& other) const
   {
-    if(__data == other.__data) return true;
+    if(m_data == other.m_data) return true;
     else {
-        const ModuleList& _str = __conststring();
-        const ModuleList& _other_str = other.__conststring();
+        const ModuleList& _str = conststring();
+        const ModuleList& _other_str = other.conststring();
         if (_str.size() != _other_str.size()) return false;
         else {
             const_iterator it = _str.begin();
@@ -397,11 +396,11 @@ public:
     }
   }
 
-  inline const Module& first() const { return __conststring().front(); }
-  inline Module& first() { return __string().front(); }
+  inline const Module& first() const { return conststring().front(); }
+  inline Module& first() { return string().front(); }
 
-  inline const Module& last() const { return __conststring().back(); }
-  inline Module& last() { return __string().back(); }
+  inline const Module& last() const { return conststring().back(); }
+  inline Module& last() { return string().back(); }
 
 protected:
 	 inline size_t getValidIndex(int i) const {
@@ -450,5 +449,3 @@ protected:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

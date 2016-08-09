@@ -29,11 +29,12 @@
  *  ----------------------------------------------------------------------------
  */
 
-
-#ifndef __lpy_config_h__
-#define __lpy_config_h__
+#pragma once
 
 /* ----------------------------------------------------------------------- */
+
+// dont use plantgl for interpretation and plotting
+#define LPY_NO_PLANTGL_INTERPRETATION
 
 /*! \def LPY_NODLL
     \brief Not creating dll
@@ -162,7 +163,3 @@
 
 #endif
 
-/* ----------------------------------------------------------------------- */
-
-// __config_h__
-#endif

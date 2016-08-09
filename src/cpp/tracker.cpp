@@ -35,7 +35,6 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-
 #ifdef TRACKER_ENABLED
 
 #define TRACKER_CLASS_IMP_DECLARE(mclass) size_t Tracker::mclass(0);
@@ -51,6 +50,6 @@ void Tracker::printReport(){
 
 #endif
 
-LPY_END_NAMESPACE
-
 /*---------------------------------------------------------------------------*/
+
+LPY_END_NAMESPACE

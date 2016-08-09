@@ -27,16 +27,20 @@
  #
  # ---------------------------------------------------------------------------
  */
-
+ 
 
 #include "moduleclass.h"
 #include "module.h"
-#include <plantgl/scenegraph/pgl_version.h>
-#include <plantgl/algo/modelling/pglturtle.h>
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+PGL_USING_NAMESPACE
+#include "../plantgl/scenegraph/pgl_version.h"
+#include "../plantgl/algo/modelling/pglturtle.h"
+#endif
 
 LPY_BEGIN_NAMESPACE
+
 TOOLS_USING_NAMESPACE
-PGL_USING_NAMESPACE
 #define bp boost::python
 
 /*---------------------------------------------------------------------------*/
@@ -56,6 +60,11 @@ ModuleClass(name,alias), documentation(doc), category(_category)
 }
 
 PredefinedModuleClass::~PredefinedModuleClass() {}
+
+
+/*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 
 
 #define DeclaredModule(modname) modname##ModuleClass
@@ -1002,13 +1011,121 @@ DeclareModuleBegin(endScreenProjection,"The turtle will create geometry in the w
 }
 DeclareModuleEnd
 
+
 /*---------------------------------------------------------------------------*/
+#else
+/*---------------------------------------------------------------------------*/
+
+
+#define DeclaredModule(modname) modname##ModuleClass
+
+#define DeclareSimpleModule(modname, doc, category) \
+class DeclaredModule(modname) : public PredefinedModuleClass  { \
+public: \
+	DeclaredModule(modname) (const std::string& name) :  PredefinedModuleClass(name,doc,category) { } \
+	DeclaredModule(modname) (const std::string& name, const std::string& alias) :  PredefinedModuleClass(name,alias,doc,category) { } \
+	~DeclaredModule(modname)() {} \
+};
+
+DeclareSimpleModule(push,"Push the state in the stack.",eStructure)
+DeclareSimpleModule(pop,"Pop last state from turtle stack and make it the its current state.",eStructure)
+
+DeclareSimpleModule(F, "Move forward and draw. Params: 'length , topradius'.",ePrimitive)
+DeclareSimpleModule(f, "Move forward and without draw. Params: 'length'.",ePrimitive)
+DeclareSimpleModule(nF,"Produce a n steps path of a given length and varying radius. Params : 'length, dlength [, radius = 1, radiusvariation = None]'.",ePrimitive)
+
+DeclareSimpleModule(GetPos,"Request position vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareSimpleModule(GetHead,"Request heading vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareSimpleModule(GetUp,"Request up vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareSimpleModule(GetLeft,"Request left vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareSimpleModule(GetRight,"Request right vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareSimpleModule(GetFrame,"Request turtle frame information. Params : 'p,h,u,l' (optional, filled by Turtle).",eRequest)
+
+DeclareSimpleModule(startGC, "Start a new generalized cylinder.",ePrimitive)
+DeclareSimpleModule(stopGC,  "Pop generalized cylinder from the stack and render it.",ePrimitive)
+
+DeclareSimpleModule(startPolygon,"Start a new polygon.",ePrimitive)
+DeclareSimpleModule(polygonPoint,"Add a point for polygon.",ePrimitive)
+DeclareSimpleModule(stopPolygon,"Pop a polygon from the stack and render it. Params : concavetest (default=False).",ePrimitive)
+
+DeclareSimpleModule(MoveTo,"Set the turtle position. Params : 'x, y, z' or 'v' (optionals, default = 0).",ePosition)
+DeclareSimpleModule(moveRel,"Move relatively from current the turtle position. Params : 'x, y, z' or 'v'(optionals, default = 0).",ePosition)
+
+DeclareSimpleModule(lineTo,"Trace line to (x,y,z) without changing the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).",ePrimitive)
+DeclareSimpleModule(orientedLineTo,"Trace line toward (x,y,z) and change the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).",ePrimitive)
+DeclareSimpleModule(pinPoint,"Orient turtle toward (x,y,z) . Params : 'x, y, z' or 'v' (optionals, default = 0).",eRotation)
+DeclareSimpleModule(lineRel,"Trace line to pos+(x,y,z) without changing the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter'(optionals, default = 0).",ePrimitive)
+DeclareSimpleModule(oLineRel,"Trace line toward pos+(x,y,z) and change the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).",ePrimitive)
+DeclareSimpleModule(pinPointRel,"Orient turtle toward pos+(x,y,z) . Params : 'x, y, z' or 'v' (optionals, default = 0).",eRotation)
+
+DeclareSimpleModule(SetHead,"Set the turtle Heading and Up vector. Params: 'hx, hy, hz, ux, uy, uz' or 'h,v' (optionals, default=0,0,1, 1,0,0).",eRotation)
+DeclareSimpleModule(eulerAngles,"Set the orientation of the turtle from the absolute euler angles. Params: 'azimuth, elevation, roll' (optionals, default=180,90,0).",eRotation)
+
+DeclareSimpleModule(left,  "Turn left  around Up vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(right, "Turn right around Up vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(up,    "Pitch up around Left vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(down,  "Pitch down around Left vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(rollL, "Roll left  around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(rollR, "Roll right  around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(iRollL, "Roll left intrinsically around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(iRollR, "Roll right intrinsically around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareSimpleModule(turnAround, "Turn around 180deg the Up vector.",eRotation)
+DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up",eRotation)
+
+DeclareSimpleModule(sphere,"Draw a sphere. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
+DeclareSimpleModule(circle,"Draw a circle. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
+DeclareSimpleModule(box,"Draw a box. Params : 'length','topradius'.",ePrimitive)
+DeclareSimpleModule(quad,"Draw a quad. Params : 'length','topradius'.",ePrimitive)
+DeclareSimpleModule(label,"Draw a text label. Params : 'text','size'.",ePrimitive)
+
+DeclareSimpleModule(incWidth,"Increase the current line width or set it if a parameter is given. Params : 'width' (optional).",eWidth)
+DeclareSimpleModule(decWidth,"Decrease the current line width or set it if a parameter is given. Params : 'width' (optional).",eWidth)
+DeclareSimpleModule(setWidth,"Set current line width. Params : 'width'.",eWidth)
+DeclareSimpleModule(incColor,"Increase the current material index or set it if a parameter is given. Params : 'index' (optional, positive int).",eColor)
+DeclareSimpleModule(decColor,"Decrease the current material index or set it if a parameter is given. Params : 'index' (optional, positive int).",eColor)
+DeclareSimpleModule(setColor,"Set the current material. Params : 'index' (positive int) or 'r,g,b[,a]' or 'material'.",eColor)
+DeclareSimpleModule(interpolateColors,"Set the current material. Params : 'index1', 'index2', 'alpha' .",eColor)
+DeclareSimpleModule(divScale,"Divides the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).",eScale)
+DeclareSimpleModule(multScale,"Multiplies the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).",eScale)
+DeclareSimpleModule(scale,"Set the current turtle scale, Params : 'scale' (optional, default = 1.0).",eScale)
+
+DeclareSimpleModule(surface,"Draw the predefined surface at the turtle's current location and orientation. Params : 'surface_name' (by default, 'l' exists), 'scale_factor' (optional, default= 1.0, should be positive).",ePrimitive)
+DeclareSimpleModule(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : 'geometric_model', 'scale_factor' (optional, should be positive) or 'shape' or 'scene' or 'material'.",ePrimitive)
+DeclareSimpleModule(Frame,"Draw the current turtle frame as 3 arrows (red=heading,blue=up,green=left). Params : 'size' (should be positive), 'cap_heigth_ratio' (in [0,1]), 'cap_radius_ratio' (should be positive).",ePrimitive)
+
+DeclareSimpleModule(elasticity,"Set Branch Elasticity. Params : 'elasticity' (optional, default= 0.0, should be between [0,1]).",eTropism)
+DeclareSimpleModule(tropism,"Set Tropism. Params : 'tropism' (optional, Vector3, default= (1,0,0)).",eTropism)
+DeclareSimpleModule(setcontour,"Set Cross Section of Generalized Cylinder. Params : 'Curve2D [, ccw]'.",ePrimitive)
+DeclareSimpleModule(sectionResolution,"Set Resolution of Section of Cylinder. Params : 'resolution' (int).",ePrimitive)
+DeclareSimpleModule(setguide,"Set Guide for turtle tracing. Params : 'Curve[2D|3D], length [,yorientation, ccw]'.",ePrimitive)
+DeclareSimpleModule(endguide,"End Guide for turtle tracing.",ePrimitive)
+DeclareSimpleModule(positiononguide,"Set position on Guide for turtle tracing.",ePrimitive)
+DeclareSimpleModule(sweep,"Produce a sweep surface. Params : 'path, section, length, dlength [, radius = 1, radiusvariation = None]'.",ePrimitive)
+
+DeclareSimpleModule(TextureScale,"Set the scale coefficient for texture application. Params : 'uscale, vscale' (default = 1,1) or 'scale'.",eTexture)
+DeclareSimpleModule(TextureUScale,"Set the u-scale coefficient for texture application. Params : 'uscale' (default = 1).",eTexture)
+DeclareSimpleModule(TextureVScale,"Set the v-scale coefficient for texture application. Params : 'vscale' (default = 1).",eTexture)
+DeclareSimpleModule(TextureTranslation,"Set the translation for texture application. Params : 'utranslation, vtranslation' (default = 0,0) or 'translation'.",eTexture)
+DeclareSimpleModule(TextureRotation,"Set the rotation for texture application. Params : 'angle, urotcenter, vrotcenter' (default = 0,0.5,0.5) or 'angle, rotcenter'.",eTexture)
+DeclareSimpleModule(TextureTransformation,"Set the transformation for texture application. Params : 'uscale, vscale, utranslation, vtranslation, angle, urotcenter, vrotcenter' (default = 1,1,0,0,0,0.5,0.5) or 'scale, translation, angle, rotcenter'.",eTexture)
+
+DeclareSimpleModule(leftReflection,"The turtle change the left vector to have a symmetric behavior.",eRotation)
+DeclareSimpleModule(upReflection,"The turtle change the up vector to have a symmetric behavior.",eRotation)
+DeclareSimpleModule(headingReflection,"The turtle change the heading vector to have a symmetric behavior.",eRotation)
+
+DeclareSimpleModule(startScreenProjection,"The turtle will create geometry in the screen coordinates system.",ePosition)
+DeclareSimpleModule(endScreenProjection,"The turtle will create geometry in the world system (default behaviour).",ePosition)
+
+
+#endif
+/*---------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
+
+
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
 
 #define CORE_DEC_PM(MName) ModuleClassPtr ModuleClass::MName;
-
 PREDEFINED_MODULE_APPLY(CORE_DEC_PM)
-
 
 std::vector<ModuleClassPtr>& ModuleClass::getPredefinedClasses()
 {
@@ -1099,11 +1216,10 @@ void ModuleClass::createPredefinedClasses() {
 	TextureRotation = new DeclaredModule(TextureRotation)("TextureRotation");
 	TextureTransformation = new DeclaredModule(TextureTransformation)("TextureTransformation");
 	LeftReflection = new DeclaredModule(leftReflection)("LeftReflection");
-  UpReflection = new DeclaredModule(upReflection)("UpReflection");
-  HeadingReflection = new DeclaredModule(headingReflection)("HeadingReflection");
-  StartScreenProjection = new DeclaredModule(startScreenProjection)("@2D","StartScreenProjection");
-  EndScreenProjection = new DeclaredModule(endScreenProjection)("@3D","EndScreenProjection");
-
+    UpReflection = new DeclaredModule(upReflection)("UpReflection");
+    HeadingReflection = new DeclaredModule(headingReflection)("HeadingReflection");
+    StartScreenProjection = new DeclaredModule(startScreenProjection)("@2D","StartScreenProjection");
+    EndScreenProjection = new DeclaredModule(endScreenProjection)("@3D","EndScreenProjection");
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	New = new PredefinedModuleClass("new","newmodule","Create a new module whose name is given by first argument.",PredefinedModuleClass::eStringManipulation);
@@ -1149,3 +1265,4 @@ std::string PredefinedModuleClass::getCategoryName(eCategory cat){
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
+

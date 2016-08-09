@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __export_lsystems_h__
-#define __export_lsystems_h__
+#pragma once
 
 void export_Options();
 void export_ModuleClass();
@@ -38,14 +37,16 @@ void export_PatternModule();
 void export_NodeModule();
 void export_AxialTree();
 void export_PatternString();
-void export_Interpretation();
 void export_LsysRule();
 void export_LsysContext();
 void export_Lsystem();
-void export_plot();
 void export_parser();
 void export_StringMatching();
-void export_Debugger();
 void export_Consider();
-
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+void export_Debugger();
+void export_Interpretation();
+void export_plot();
 #endif
+
+

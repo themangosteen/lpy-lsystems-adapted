@@ -28,13 +28,13 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "axialtree.h"
-#include "patternstring.h"
-#include "nodemodule.h"
-#include "axialtree_manip.h"
-#include "axialtree_iter.h"
+#include "../cpp/axialtree.h"
+#include "../cpp/patternstring.h"
+#include "../cpp/nodemodule.h"
+#include "../cpp/axialtree_manip.h"
+#include "../cpp/axialtree_iter.h"
 #include "export_lstring.h"
-#include <plantgl/python/export_list.h>
+#include "../plantgl/python/export_list.h"
 using namespace boost::python;
 LPY_USING_NAMESPACE
 #define bp boost::python
@@ -215,7 +215,7 @@ boost::python::object py_varnames(AxialTree * tree)
 
 struct axialtree_from_str {
   static void* convertible(PyObject* py_obj){
-    if( !PyString_Check( py_obj ) ) return 0; 
+    if( !PyBytes_Check( py_obj ) ) return 0; 
     return py_obj; 
   } 
   static void construct( PyObject* obj, boost::python::converter::rvalue_from_python_stage1_data* data){ 

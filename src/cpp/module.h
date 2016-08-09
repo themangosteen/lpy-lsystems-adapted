@@ -28,13 +28,12 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __LSYS_MODULES_H__
-#define __LSYS_MODULES_H__
+#pragma once
 
 #include "error.h"
 #include <vector>
-#include <plantgl/python/boost_python.h>
-#include <plantgl/tool/util_string.h>
+#include "../plantgl/tool/util_string.h"
+#include "../plantgl/math/util_vector.h"
 
 #include "moduleclass.h"
 #include "argcollector.h"
@@ -57,48 +56,48 @@ public:
 
   virtual ~Module();
 
-  inline const std::string& name() const {  return __mclass->name; }
-  inline void setName(const std::string& c) { __mclass = ModuleClassTable::get().getClass(c); }
-  inline bool sameName(const Module& m) const { return __mclass == m.__mclass;  }
+  inline const std::string& name() const {  return m_mclass->name; }
+  inline void setName(const std::string& c) { m_mclass = ModuleClassTable::get().getClass(c); }
+  inline bool sameName(const Module& m) const { return m_mclass == m.m_mclass;  }
 
-  inline ModuleClassPtr getClass() const { lpyassert(__mclass != NULL); return __mclass; }
+  inline ModuleClassPtr getClass() const { lpyassert(m_mclass != NULL); return m_mclass; }
   inline size_t getClassId() const { return getClass()->getId(); }
   inline bool isinstance(const ModuleClassPtr& mclass) const 
-  { return __mclass->issubclass(mclass) ;  }
+  { return m_mclass->issubclass(mclass) ;  }
 
   virtual std::string str() const;
   virtual std::string repr() const;
   inline bool operator==(const Module& n) const { return sameName(n); }
   inline bool operator!=(const Module& other) const { return !operator==(other); }
 
-  inline bool isLeftBracket() const {  return __mclass == ModuleClass::LeftBracket; }
-  inline bool isRightBracket() const {  return __mclass == ModuleClass::RightBracket; }
-  inline bool isExactRightBracket() const { return __mclass == ModuleClass::ExactRightBracket; }
+  inline bool isLeftBracket() const {  return m_mclass == ModuleClass::LeftBracket; }
+  inline bool isRightBracket() const {  return m_mclass == ModuleClass::RightBracket; }
+  inline bool isExactRightBracket() const { return m_mclass == ModuleClass::ExactRightBracket; }
   inline bool isBracket() const { return isLeftBracket() || isRightBracket() || isExactRightBracket(); }
   inline bool isRequest() const { 
-		return __mclass == ModuleClass::QueryPosition || 
-			   __mclass == ModuleClass::QueryHeading ||
-			   __mclass == ModuleClass::QueryUp || 
-			   __mclass == ModuleClass::QueryLeft || 
-		       __mclass == ModuleClass::QueryRigth || 
-		       __mclass == ModuleClass::QueryFrame; }
-  inline bool isCut() const { return __mclass == ModuleClass::Cut; }
-  inline bool isNone() const { return __mclass == ModuleClass::None; }
-  inline bool isNull() const { return __mclass == ModuleClass::None || __mclass == ModuleClass::Star; }
-  inline bool isStar() const { return __mclass == ModuleClass::Star; }
-  inline bool isRepExp() const { return __mclass == ModuleClass::RepExp; }
-  inline bool isOr() const { return __mclass == ModuleClass::Or; }
+		return m_mclass == ModuleClass::QueryPosition || 
+			   m_mclass == ModuleClass::QueryHeading ||
+			   m_mclass == ModuleClass::QueryUp || 
+			   m_mclass == ModuleClass::QueryLeft || 
+		       m_mclass == ModuleClass::QueryRigth || 
+		       m_mclass == ModuleClass::QueryFrame; }
+  inline bool isCut() const { return m_mclass == ModuleClass::Cut; }
+  inline bool isNone() const { return m_mclass == ModuleClass::None; }
+  inline bool isNull() const { return m_mclass == ModuleClass::None || m_mclass == ModuleClass::Star; }
+  inline bool isStar() const { return m_mclass == ModuleClass::Star; }
+  inline bool isRepExp() const { return m_mclass == ModuleClass::RepExp; }
+  inline bool isOr() const { return m_mclass == ModuleClass::Or; }
   inline bool isRE() const { return isRepExp() || isOr(); }
-  inline bool isGetIterator() const { return __mclass == ModuleClass::GetIterator; }
-  inline bool isGetModule() const { return __mclass == ModuleClass::GetModule; }
+  inline bool isGetIterator() const { return m_mclass == ModuleClass::GetIterator; }
+  inline bool isGetModule() const { return m_mclass == ModuleClass::GetModule; }
   bool isConsidered() const;
   bool isIgnored() const;
 
-  inline int scale() const { return __mclass->getScale(); }
+  inline int scale() const { return m_mclass->getScale(); }
 protected:
-  inline void setClass(size_t cid) { __mclass = ModuleClassTable::get().find(cid); }
+  inline void setClass(size_t cid) { m_mclass = ModuleClassTable::get().find(cid); }
 private:
-  ModuleClassPtr __mclass;
+  ModuleClassPtr m_mclass;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -116,36 +115,36 @@ public:
 	typedef typename ParameterList::reverse_iterator reverse_iterator;
 	typedef typename ParameterList::const_reverse_iterator const_reverse_iterator;
 
-	AbstractParamModule() : __argholder(new  ParamModuleInternal()) { }
-	AbstractParamModule(const std::string& name) : Module(name), __argholder(new  ParamModuleInternal()) {}
-    AbstractParamModule(size_t classid) : Module(classid), __argholder(new  ParamModuleInternal()) {}
-    AbstractParamModule(const ModuleClassPtr mclass) : Module(mclass), __argholder(new  ParamModuleInternal()) {}
+	AbstractParamModule() : m_argholder(new ParamModuleInternal()) { }
+	AbstractParamModule(const std::string& name) : Module(name), m_argholder(new ParamModuleInternal()) {}
+    AbstractParamModule(size_t classid) : Module(classid), m_argholder(new ParamModuleInternal()) {}
+    AbstractParamModule(const ModuleClassPtr mclass) : Module(mclass), m_argholder(new ParamModuleInternal()) {}
 
 	~AbstractParamModule() { }
 
-	inline size_t size() const { return __constargs().size(); }
-	inline bool empty() const  { return __constargs().empty(); }
+	inline size_t size() const { return getConstargs().size(); }
+	inline bool empty() const  { return getConstargs().empty(); }
 
-	/*attribute_deprecated*/ inline size_t argSize() const { return __constargs().size(); }
-	/*attribute_deprecated*/ inline bool hasArg() const  { return !__constargs().empty(); }
+	/*attribute_deprecated*/ inline size_t argSize() const { return getConstargs().size(); }
+	/*attribute_deprecated*/ inline bool hasArg() const  { return !getConstargs().empty(); }
 
 	inline boost::python::list getPyArgs() const 
-	{ return toPyList(__constargs()); }
+	{ return toPyList(getConstargs()); }
 	
 	inline void setPyArgs(const boost::python::list& l) 
-	{ __args() = toParameterList(l); }
+	{ getArgs() = toParameterList(l); }
 
     inline const ParameterType& getAt(size_t i) const 
-	{ lpyassert(size() > i); return __constargs()[i]; }
+	{ lpyassert(size() > i); return getConstargs()[i]; }
 
     inline ParameterType& getAt(size_t i) 
-	{ lpyassert(size() > i); return __args()[i]; }
+	{ lpyassert(size() > i); return getArgs()[i]; }
 
     inline void setAt(size_t i, const ParameterType& value) 
-	{ lpyassert(size() > i); __args()[i] = value; }
+	{ lpyassert(size() > i); getArgs()[i] = value; }
 
 	inline void delAt(size_t i) 
-	{ lpyassert(size() > i); __args().erase(__args().begin()+i); }
+	{ lpyassert(size() > i); getArgs().erase(getArgs().begin()+i); }
 
     inline ParameterType getItemAt(int i) const 
 	{ return getAt(getValidIndex(i));  }
@@ -159,14 +158,14 @@ public:
 	boost::python::list getSlice(size_t i, size_t j) const {
 		lpyassert( i <= j && j <= size() );
 		boost::python::list res;
-		for(const_iterator it = __constargs().begin()+i; 
-			it != __constargs().begin()+j; ++it) res.append(*it);
+		for(const_iterator it = getConstargs().begin()+i; 
+			it != getConstargs().begin()+j; ++it) res.append(*it);
 		return res;
 	}
 
 	inline void delSlice(size_t i, size_t j) 
 	{ lpyassert( i <= j && j <= size() );
-	  __args().erase(__args().begin()+i,__args().begin()+j); }
+	  getArgs().erase(getArgs().begin()+i,getArgs().begin()+j); }
 
     inline boost::python::list getSliceItemAt(int i, int j) const 
 	{ size_t ri, rj; getValidIndices(i,j,ri,rj) ; return getSlice(ri,rj);  }
@@ -174,11 +173,11 @@ public:
     inline void delSliceItemAt(int i, int j)
 	{ size_t ri, rj; getValidIndices(i,j,ri,rj) ; return delSlice(ri,rj);  }
 
-	inline void append(const ParameterType& value)  { __args().push_back(value); }
-	inline void prepend(const ParameterType& value) { __args().insert(__args().begin(), value); }
+	inline void append(const ParameterType& value)  { getArgs().push_back(value); }
+	inline void prepend(const ParameterType& value) { getArgs().insert(getArgs().begin(), value); }
 
 	inline bool operator==(const BaseType& other) const 
-	{ return (sameName(other) && (__argholder == other.__argholder || __constargs() == other.__constargs())); }
+	{ return (sameName(other) && (m_argholder == other.m_argholder || getConstargs() == other.getConstargs())); }
 
     inline bool operator!=(const BaseType& other) const { return !operator==(other); }
 
@@ -196,7 +195,7 @@ public:
 
 	inline boost::python::tuple toTuple() const {
 		boost::python::tuple res(name());
-		res += boost::python::tuple(toPyList(__constargs()));
+		res += boost::python::tuple(toPyList(getConstargs()));
 		return res;
 	}
 
@@ -204,7 +203,7 @@ public:
 	{ 
 	  boost::python::str res(",");
 	  boost::python::list argstr;
-	  for (const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
+	  for (const_iterator it = getConstargs().begin(); it != getConstargs().end(); ++it)
 			argstr.append(boost::python::str(*it));
       return boost::python::extract<std::string>(res.join(argstr));
     }
@@ -214,7 +213,7 @@ public:
 	  boost::python::str res(",");
 	  boost::python::list argstr;
       boost::python::object repr = getFunctionRepr();
-	  for (const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
+	  for (const_iterator it = getConstargs().begin(); it != getConstargs().end(); ++it)
 			argstr.append(repr(*it));
       return boost::python::extract<std::string>(res.join(argstr));
     }
@@ -240,7 +239,7 @@ public:
     inline void setParameter(const std::string& pname, const ParameterType& value)
 	{ return setAt(getValidParameterPosition(pname),value); }
 
-    inline const ParameterList& getParameterList() const { return __constargs(); }
+    inline const ParameterList& getParameterList() const { return getConstargs(); }
 
 	void getNamedParameters(boost::python::dict& parameters, size_t fromIndex = 0) const
 	{
@@ -287,20 +286,20 @@ protected:
 	 typedef typename ParamModule::ParameterList ParameterList;
 
 	 ParamListInternal() : QSharedData() {}
-	 ParamListInternal(const ParamListInternal& other) : QSharedData(), __args(other.__args) { }
+	 ParamListInternal(const ParamListInternal& other) : QSharedData(), m_args(other.m_args) { }
 	 ~ParamListInternal() {}
 
-     ParameterList __args;
+     ParameterList m_args;
  };
  
  typedef ParamListInternal<BaseType> ParamModuleInternal;
  typedef QSharedDataPointer<ParamModuleInternal> ParamModuleInternalPtr;
 
-  ParamModuleInternalPtr __argholder;
+  ParamModuleInternalPtr m_argholder;
 
-  inline ParameterList& __args() { return __argholder->__args; }
-  inline const ParameterList& __args() const { return __argholder->__args; }
-  inline const ParameterList& __constargs() const { return __argholder->__args; }
+  inline ParameterList& getArgs() { return m_argholder->m_args; }
+  inline const ParameterList& getArgs() const { return m_argholder->m_args; }
+  inline const ParameterList& getConstargs() const { return m_argholder->m_args; }
 
   static inline boost::python::list toPyList(const ParameterList& pl) {
 	boost::python::list result;
@@ -311,9 +310,9 @@ protected:
 
   static inline ParameterList toParameterList(const boost::python::object& t){
 	ParameterList result;
-	bp::object iter_obj = bp::object( bp::handle<>( PyObject_GetIter( t.ptr() ) ) );
-	try {  while( 1 ) result.push_back(bp::extract<ParameterType>(iter_obj.attr( "next" )())()); }
-    catch( bp::error_already_set ){ PyErr_Clear(); }
+	boost::python::object iter_obj = boost::python::object( boost::python::handle<>( PyObject_GetIter( t.ptr() ) ) );
+	try {  while( 1 ) result.push_back(boost::python::extract<ParameterType>(iter_obj.attr( "next" )())()); }
+    catch( boost::python::error_already_set ){ PyErr_Clear(); }
    return result;
  }
 
@@ -394,10 +393,12 @@ public:
   bool match(const PatternModule&m, ArgList&) const;
   bool match(const std::string&, size_t nbargs) const;
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
   inline void interpret(PGL::Turtle& t) { getClass()->interpret(*this,t); }
+#endif
 
   inline bool operator==(const ParamModule& other) const 
-  { return (sameName(other) && (__argholder == other.__argholder || __constargs() == other.__constargs())); }
+  { return (sameName(other) && (m_argholder == other.m_argholder || getConstargs() == other.getConstargs())); }
   inline bool operator==(const std::string& other) const 
   { return other == name();}
 
@@ -425,8 +426,4 @@ inline int down_scale(int scale1) { return scale1 - 1; }
 
 /*---------------------------------------------------------------------------*/
 
-
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-#endif

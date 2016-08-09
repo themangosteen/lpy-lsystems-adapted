@@ -28,12 +28,9 @@
 # ---------------------------------------------------------------------------
 */
 
+#pragma once
+
 #include "axialtree.h"
-#include "lsyscontext.h"
-
-
-#ifndef __lstring_matcher_h__
-#define __lstring_matcher_h__
 
 LPY_BEGIN_NAMESPACE
 
@@ -71,7 +68,7 @@ private:
 	void update_returned_args(boost::python::dict& args, const std::vector<std::string>& varnames, const ArgList& values) const;
 };
 
-typedef RCPtr<LstringMatcher> LstringMatcherPtr;
+typedef TOOLS(RefCountPtr)<LstringMatcher> LstringMatcherPtr;
 
 class LsysContext;
 
@@ -82,8 +79,7 @@ struct LstringMatcherMaintainer {
 
     ~LstringMatcherMaintainer();
 };
+
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

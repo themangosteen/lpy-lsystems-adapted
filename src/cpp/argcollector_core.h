@@ -28,12 +28,10 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __arg_collector_core_h__
-#define __arg_collector_core_h__
+#pragma once
 
 #include "argcollector.h"
 #include "module.h"
-
 
 LPY_BEGIN_NAMESPACE
 
@@ -204,5 +202,3 @@ typedef ArgListCollector<ArgList> ArgsCollector;
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

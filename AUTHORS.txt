@@ -1,2 +1,5 @@
-Authors:
+Original Author:
 Frédéric Boudon
+
+For information on this custom version, contact:
+Nikolaus Leopold

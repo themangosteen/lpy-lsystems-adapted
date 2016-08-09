@@ -28,9 +28,9 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "patternstring.h"
+#include "../cpp/patternstring.h"
 #include "export_lstring.h"
-#include <plantgl/python/export_list.h>
+#include "../plantgl/python/export_list.h"
 
 using namespace boost::python;
 LPY_USING_NAMESPACE

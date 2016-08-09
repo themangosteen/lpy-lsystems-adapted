@@ -28,9 +28,9 @@
 # ---------------------------------------------------------------------------
 */
 
-#ifndef __CONSIDER_H__
-#define __CONSIDER_H__
+#pragma once
 
+#include <stack>
 #include "global.h"
 #include "module.h"
 
@@ -65,8 +65,8 @@ public:
 
   bool isIgnored(const ModuleClassPtr module) const;
 
-  inline bool ignoring() const { return __method == eIgnore; }
-  inline eConsiderMethod method() const { return __method; }
+  inline bool ignoring() const { return m_method == eIgnore; }
+  inline eConsiderMethod method() const { return m_method; }
 
   std::string keyword() const;
 
@@ -97,8 +97,8 @@ public:
 protected:
   /// attributes for ignore and consider
   typedef pgl_hash_map<size_t,ModuleClassPtr> ModuleClassSet;
-  ModuleClassSet __keyword;
-  eConsiderMethod __method;
+  ModuleClassSet m_keyword;
+  eConsiderMethod m_method;
 };
 
 
@@ -115,5 +115,3 @@ struct ConsiderFilterMaintainer {
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

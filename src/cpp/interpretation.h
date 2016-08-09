@@ -27,15 +27,16 @@
  #
  # ---------------------------------------------------------------------------
  */
+ 
+#pragma once
 
-#ifndef __LPY_STRINGINTERPRETER_H__
-#define __LPY_STRINGINTERPRETER_H__
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 
 #include "lpy_config.h"
 #include "stringmatching.h"
 #include <vector>
 #include <string>
-#include <plantgl/algo/modelling/turtle.h>
+#include "../plantgl/algo/modelling/turtle.h"
 
 LPY_BEGIN_NAMESPACE
 

@@ -28,18 +28,20 @@
 # ---------------------------------------------------------------------------
 */
 
-#ifndef __LSYSCONTEXT_H__
-#define __LSYSCONTEXT_H__
+#pragma once
 
+#include "lstringmatcher.h"
 #include "axialtree.h"
 #include "lsysoptions.h"
 #include "paramproduction.h"
-#include "lstringmatcher.h"
-#include <plantgl/algo/modelling/pglturtle.h>
-#include <plantgl/tool/util_hashset.h>
+#include "../plantgl/tool/util_hashset.h"
 #include <QtCore/QReadWriteLock>
 
 LPY_BEGIN_NAMESPACE
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+#include "../plantgl/algo/modelling/pglturtle.h"
+#endif
 
 /*---------------------------------------------------------------------------*/
 
@@ -80,11 +82,15 @@ public:
 
   boost::python::object end();
   boost::python::object end(AxialTree&);
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
   boost::python::object end(AxialTree&, const PGL::ScenePtr&);
+#endif
 
   boost::python::object endEach();
   boost::python::object endEach(AxialTree&);
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
   boost::python::object endEach(AxialTree&, const PGL::ScenePtr&);
+#endif
 
   void postDraw();
 
@@ -109,13 +115,13 @@ public:
   void setEndInterpretation(boost::python::object func);
 
   void check_init_functions();
-  inline size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }
-  inline size_t getEndNbArgs() const { return  __nbargs_of_end; }
-  inline size_t getStartEachNbArgs() const { return  __nbargs_of_starteach; }
-  inline size_t getStartNbArgs() const { return  __nbargs_of_start; }
+  inline size_t getEndEachNbArgs() const { return  m_nbargs_of_endeach; }
+  inline size_t getEndNbArgs() const { return  m_nbargs_of_end; }
+  inline size_t getStartEachNbArgs() const { return  m_nbargs_of_starteach; }
+  inline size_t getStartNbArgs() const { return  m_nbargs_of_start; }
 
 
-  /// initialise context using python function in namespace.
+  // initialise context using python function in namespace.
   bool initialise();
   size_t initialiseFrom(const std::string& lcode);
 
@@ -153,7 +159,7 @@ public:
   bool copyObjectToGlobals(const std::string& name, LsysContext * sourceContext) ;
 
   /// protected access to python namespace. To be redefined.
-  virtual boost::python::dict locals()  const { return __locals; };
+  virtual boost::python::dict locals()  const { return m_locals; };
   virtual PyObject * globals()  const { return NULL; };
   
   /** make current or disable a context */
@@ -173,39 +179,39 @@ public:
   static void cleanContexts();
 
   /** control of the direction of next iteration */
-  inline void backward() { __direction = eBackward; }
-  inline void forward() { __direction = eForward; }
-  inline bool isForward() { return __direction == eForward; }
-  inline eDirection getDirection() const { return __direction; }
+  inline void backward() { m_direction = eBackward; }
+  inline void forward() { m_direction = eForward; }
+  inline bool isForward() { return m_direction == eForward; }
+  inline eDirection getDirection() const { return m_direction; }
 
   /** selection of group of rules */
-  inline void useGroup(size_t gid) { __group = gid; }
-  inline size_t getGroup() const  { return __group; }
+  inline void useGroup(size_t gid) { m_group = gid; }
+  inline size_t getGroup() const  { return m_group; }
 
   /** control of frame display */
-  inline void frameDisplay(bool enabled) { __frameDisplay = enabled; }
-  inline bool isFrameDisplayed() const  { return __frameDisplay; }
+  inline void frameDisplay(bool enabled) { m_frameDisplay = enabled; }
+  inline bool isFrameDisplayed() const  { return m_frameDisplay; }
 
   /** iterative production */
   inline void nproduce(const AxialTree& prod)
-  { __nproduction.append(prod); }
+  { m_nproduction.append(prod); }
 
   inline void nproduce(const boost::python::list& prod)
-  { __nproduction.append(AxialTree(prod)); }
+  { m_nproduction.append(AxialTree(prod)); }
 
-  inline void reset_nproduction() { __nproduction.clear(); }
-  inline AxialTree get_nproduction() const { return __nproduction; }
-  inline void set_nproduction(const AxialTree& prod) { __nproduction = prod; }
+  inline void reset_nproduction() { m_nproduction.clear(); }
+  inline AxialTree get_nproduction() const { return m_nproduction; }
+  inline void set_nproduction(const AxialTree& prod) { m_nproduction = prod; }
 
   /** parametric production */
   inline void add_pproduction(const ParametricProductionPtr pprod)
-  { __paramproductions.push_back(pprod); }
+  { m_paramproductions.push_back(pprod); }
 
   inline void add_pproductions(const ParametricProductionList& pprod)
-  { __paramproductions.insert(__paramproductions.end(),pprod.begin(),pprod.end()); }
+  { m_paramproductions.insert(m_paramproductions.end(),pprod.begin(),pprod.end()); }
 
   inline const ParametricProductionList& get_pproductions() const 
-  { return __paramproductions; }
+  { return m_paramproductions; }
   
 
   inline AxialTree generate(size_t pprod_id, const bp::list& args)
@@ -217,42 +223,48 @@ public:
 	return ParametricProduction::get(pprod_id)->generate(args); }
 
   inline void pproduce(size_t pprod_id, const bp::list& args)
-  { __nproduction.append(generate(pprod_id,args)); }
+  { m_nproduction.append(generate(pprod_id,args)); }
 
   inline void pproduce(const bp::tuple& args)
-  { __nproduction.append(generate(args)); }
+  { m_nproduction.append(generate(args)); }
 
   /** animation time step property */
   double get_animation_timestep();
   void set_animation_timestep(double value);
   bool is_animation_timestep_to_default();
 
-  inline bool isAnimationEnabled() const { return __animation_enabled; }
-  inline void setAnimationEnabled(bool enabled) { __animation_enabled = enabled; }
+  inline bool isAnimationEnabled() const { return m_animation_enabled; }
+  inline void setAnimationEnabled(bool enabled) { m_animation_enabled = enabled; }
 
   /** Specify if the selection check is required */
   bool isSelectionAlwaysRequired() const;
   void setSelectionAlwaysRequired(bool enabled);
 
   inline void requestSelection(const std::string& message) {
-	__selection_requested = true;
-	__selection_message = message;
+	m_selection_requested = true;
+	m_selection_message = message;
 	frameDisplay(true);
   }
-  inline bool isSelectionRequested() const { return __selection_requested; }
-  inline const std::string& getSelectionMessage() const { return __selection_message; }
+  inline bool isSelectionRequested() const { return m_selection_requested; }
+  inline const std::string& getSelectionMessage() const { return m_selection_message; }
 
   inline void selectionAquired() {
-	__selection_requested = false;
+	m_selection_requested = false;
   }
 
   /// Specify whether a warning should be made if found sharp module
-  inline bool warnWithSharpModule() const { return __warn_with_sharp_module; }
+  inline bool warnWithSharpModule() const { return m_warn_with_sharp_module; }
   void setWarnWithSharpModule(bool);
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
   /** Turtles and interpretation structures */
   PGL(PglTurtle) turtle;
   PGL(Turtle)    envturtle;
+#endif
+
+  // initialise context using python function in namespace.
+  bool m_initialise();
+  size_t m_initialiseFrom(const std::string& lcode);
 
   /** Context options */
   LsysOptions options;
@@ -260,13 +272,13 @@ public:
   /** module declaration. */
   void declare(const std::string& modules);
   inline void declare(ModuleClassPtr module)
-  { __modules.push_back(module); }
+  { m_modules.push_back(module); }
 
   void undeclare(const std::string& modules);
   void undeclare(ModuleClassPtr module);
   bool isDeclared(const std::string& module);
   bool isDeclared(ModuleClassPtr module);
-  ModuleClassList declaredModules() const { return __modules; }
+  ModuleClassList declaredModules() const { return m_modules; }
   void declareModules(const ModuleClassList& other);
 
   void declareAlias(const std::string& aliasName, ModuleClassPtr module);
@@ -289,9 +301,9 @@ public:
   inline void stop() { enableEarlyReturn(true); }
 
   void importContext(const LsysContext& other);
-
+  
   void registerLstringMatcher(const LstringMatcherPtr lstringmatcher = LstringMatcherPtr())
-  { __lstringmatcher = lstringmatcher; }
+  { m_lstringmatcher = lstringmatcher; }
 
   bool pInLeftContext(size_t, boost::python::dict& res);
   bool inLeftContext(const PatternString& pattern, boost::python::dict& res);
@@ -306,14 +318,12 @@ protected:
   void setIterationNb(size_t) ;
 
 protected:
-  boost::python::dict __locals;
+  boost::python::dict m_locals;
 
   boost::python::object controlMethod(const std::string&, AxialTree&);
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
   boost::python::object controlMethod(const std::string&, AxialTree&, const PGL::ScenePtr&);
-
-  /// initialise context using python function in namespace.
-  bool __initialise();
-  size_t __initialiseFrom(const std::string& lcode);
+#endif
 
   void namespaceInitialisation();
 
@@ -332,55 +342,55 @@ protected:
   void init_options();
 
   /// attributes for module declaration
-  ModuleClassList __modules;
-  ModuleVTableList __modulesvtables;
+  ModuleClassList m_modules;
+  ModuleVTableList m_modulesvtables;
 
   typedef pgl_hash_map_string<ModuleClassPtr> AliasSet;
-  AliasSet __aliases;
+  AliasSet m_aliases;
 
   /// next iteration control
-  eDirection __direction;
-  size_t __group;
-  bool __frameDisplay;
+  eDirection m_direction;
+  size_t m_group;
+  bool m_frameDisplay;
 
   /// iterative production
-  AxialTree __nproduction;
+  AxialTree m_nproduction;
 
 
   /// selection required property
-  bool __selection_always_required;
-  std::string __selection_message;
-  bool __selection_requested;
+  bool m_selection_always_required;
+  std::string m_selection_message;
+  bool m_selection_requested;
 
   /// Warn if found sharp module
-  bool __warn_with_sharp_module;
+  bool m_warn_with_sharp_module;
 
   /// animation step property and its mutex
-  double __animation_step;
-  QReadWriteLock __animation_step_mutex;
+  double m_animation_step;
+  QReadWriteLock m_animation_step_mutex;
   /// animation property
-  bool __animation_enabled;
+  bool m_animation_enabled;
 
   /// iteration nb property and its mutex
-  size_t __iteration_nb;
-  QReadWriteLock __iteration_nb_lock;
+  size_t m_iteration_nb;
+  QReadWriteLock m_iteration_nb_lock;
 
-  size_t __nbargs_of_starteach;
-  size_t __nbargs_of_start;
-  size_t __nbargs_of_endeach;
-  size_t __nbargs_of_end;
+  size_t m_nbargs_of_starteach;
+  size_t m_nbargs_of_start;
+  size_t m_nbargs_of_endeach;
+  size_t m_nbargs_of_end;
 
   // list of parametric production
-  ParametricProductionList __paramproductions;
+  ParametricProductionList m_paramproductions;
 
   // list of pattern to find
-//  PatternStringList __patternstrings;
-  LstringMatcherPtr __lstringmatcher;
+//  PatternStringList m_patternstrings;
+  LstringMatcherPtr m_lstringmatcher;
 
 
   // For multithreaded appli, allow to set an early_return
-  bool __early_return;
-  QReadWriteLock __early_return_mutex;
+  bool m_early_return;
+  QReadWriteLock m_early_return_mutex;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -396,7 +406,7 @@ public:
   virtual void clearNamespace();
 
 protected:
-  boost::python::dict __globals;
+  boost::python::dict m_globals;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -411,8 +421,8 @@ public:
 
 protected:
 
-  boost::python::handle<> __globals;
-  static boost::python::object __reprFunc;
+  boost::python::handle<> m_globals;
+  static boost::python::object m_reprFunc;
 
 };
 
@@ -502,7 +512,3 @@ struct ContextMaintainer {
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-
-#endif

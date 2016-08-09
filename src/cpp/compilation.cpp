@@ -32,12 +32,12 @@
 #include "compilation.h"
 #include "error.h"
 #include <boost/python.hpp>
-#include <plantgl/tool/util_string.h>
+#include "../plantgl/tool/util_string.h"
 #include <fstream>
 
 #define bp boost::python
+
 LPY_USING_NAMESPACE
-TOOLS_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
@@ -86,15 +86,15 @@ std::string Compilation::generate_fname(const std::string& fname)
 {
 	static size_t tmpid = 0;
 	++tmpid;
-	if(fname.empty())return "lsystem_"+number(tmpid);
-	else return fname+number(tmpid);
+	if(fname.empty())return "lsystem_"+TOOLS(number(tmpid));
+	else return fname+TOOLS(number(tmpid));
 }
 
 void Compilation::py_file_write(const std::string& code,
 								const std::string& fname)
 {
 	std::ofstream stream(fname.c_str());
-	stream << "from openalea.lpy import *" << std::endl;
+	stream << "from lpy import *" << std::endl;
 	stream << code;
 }
 

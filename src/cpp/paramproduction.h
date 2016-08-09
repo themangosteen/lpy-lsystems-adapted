@@ -28,16 +28,15 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __lpy_param_prod_h__
-#define __lpy_param_prod_h__
+#pragma once
 
 #include "axialtree.h"
-#include <plantgl/tool/util_hashmap.h>
+#include "../plantgl/tool/util_hashmap.h"
 #include <queue>
 
-/*---------------------------------------------------------------------------*/
-
 LPY_BEGIN_NAMESPACE
+
+/*---------------------------------------------------------------------------*/
 
 class ParametricProduction;
 typedef RCPtr<ParametricProduction> ParametricProductionPtr;
@@ -65,46 +64,46 @@ public:
 
 	inline void append_variable_module()
 	{ 
-	  __arguments.push_back(ArgPos(__canvas.size(),modulearg));
-	  __canvas.append(ParamModule()); 
+	  m_arguments.push_back(ArgPos(m_canvas.size(),modulearg));
+	  m_canvas.append(ParamModule()); 
 	}
 
 	inline void append_module_type(const std::string& name)
 	{
-		__canvas.append(ParamModule(name)); 
-		if(__canvas.last().getClass() == ModuleClass::New)
+		m_canvas.append(ParamModule(name)); 
+		if(m_canvas.last().getClass() == ModuleClass::New)
 			next_arg_for_new = true;
 	}
 
 	inline void append_module_type(size_t classid) 
 	{ 
-		__canvas.append(ParamModule(classid)); 
-		if(__canvas.last().getClass() == ModuleClass::New)
+		m_canvas.append(ParamModule(classid)); 
+		if(m_canvas.last().getClass() == ModuleClass::New)
 			next_arg_for_new = true;
 	}
 
 	inline void append_module_value(const boost::python::object& value) 
 	{ 
-	  lpyassert(!__canvas.empty()); 
+	  lpyassert(!m_canvas.empty()); 
 	  if(next_arg_for_new){
-		  __canvas.last().setName(bp::extract<std::string>(value)());
+		  m_canvas.last().setName(bp::extract<std::string>(value)());
 		  next_arg_for_new = false;
 	  }
-	  else __canvas.last().append(value); 
+	  else m_canvas.last().append(value); 
 	}
 
 	inline void append_module_variable() 
 	{ 
-	   assert(!__canvas.empty()); 
-	   __arguments.push_back(ArgPos(__canvas.size()-1,__canvas.last().size(),false,next_arg_for_new));
+	   assert(!m_canvas.empty()); 
+	   m_arguments.push_back(ArgPos(m_canvas.size()-1,m_canvas.last().size(),false,next_arg_for_new));
 	   if(next_arg_for_new) next_arg_for_new = false;
-	   else __canvas.last().append(bp::object()); 
+	   else m_canvas.last().append(bp::object()); 
 	}
 
 	inline void append_module_star_variable() 
 	{ 
-	   assert(!__canvas.empty()); 
-	   __arguments.push_back(ArgPos(__canvas.size()-1,__canvas.last().size(),true,next_arg_for_new)); 
+	   assert(!m_canvas.empty()); 
+	   m_arguments.push_back(ArgPos(m_canvas.size()-1,m_canvas.last().size(),true,next_arg_for_new)); 
 	   if(next_arg_for_new) next_arg_for_new = false;
 	}
 
@@ -117,8 +116,8 @@ public:
 	}
 
 	inline AxialTree generate(size_t i, const boost::python::object& args) const {
-		AxialTree res(__canvas);
-		for(ArgPosList::const_iterator itArg = __arguments.begin(); itArg != __arguments.end(); ++itArg, ++i)
+		AxialTree res(m_canvas);
+		for(ArgPosList::const_iterator itArg = m_arguments.begin(); itArg != m_arguments.end(); ++itArg, ++i)
 			if(itArg->argid != modulearg){
 				if(itArg->isStarArg) {
 					ParamModule& m = res[itArg->moduleid];
@@ -139,23 +138,23 @@ public:
 		return res;
 	}
 
-	inline size_t nbArgs() const { return __arguments.size(); }
-	inline bool hasArgs() const { return !__arguments.empty(); }
+	inline size_t nbArgs() const { return m_arguments.size(); }
+	inline bool hasArgs() const { return !m_arguments.empty(); }
 
-	inline AxialTree getCanvas() const { return __canvas; }
+	inline AxialTree getCanvas() const { return m_canvas; }
 
 	static ParametricProductionPtr create();
 	static ParametricProductionPtr get(size_t pid);
 
-	size_t pid() const { return __pid; }
+	size_t pid() const { return m_pid; }
 
 protected:
 	ParametricProduction() : next_arg_for_new(false) { }
 
-	AxialTree __canvas;
-	ArgPosList __arguments;
+	AxialTree m_canvas;
+	ArgPosList m_arguments;
 	bool next_arg_for_new;
-	size_t __pid;
+	size_t m_pid;
 	
 };
 
@@ -180,13 +179,11 @@ protected:
 
 	ParamProductionManager();
 
-	ParametricProductionMap __productions;
-	std::queue<size_t> __free_indices;
+	ParametricProductionMap m_productions;
+	std::queue<size_t> m_free_indices;
 
 };
 
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

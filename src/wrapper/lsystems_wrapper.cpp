@@ -31,11 +31,15 @@
 #include <iostream>
 #include <boost/python.hpp>
 #include "export_lsystem.h"
-#include "moduleclass.h"
-#include "lsyscontext.h"
-#include "tracker.h"
-#include <plantgl/gui/base/application.h>
-#include <plantgl/python/exception_core.h>
+#include "../cpp/moduleclass.h"
+#include "../cpp/lsyscontext.h"
+#include "../cpp/tracker.h"
+#include "../plantgl/python/exception_core.h"
+#include "../plantgl/python/export_refcountptr.h"
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+#include "../plantgl/gui/base/application.h"
+#endif
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -49,14 +53,16 @@ void cleanLsys()
 #endif
 	LsysContext::cleanContexts();
 	ModuleClassTable::clearModuleClasses ();
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	ViewerApplication::exit ();
+#endif
 #ifdef TRACKER_ENABLED
 	std::cerr << "****** post-cleaning ******" << std::endl;
 	Tracker::printReport();
 #endif
 }
 
-BOOST_PYTHON_MODULE(__lpy_kernel__)
+BOOST_PYTHON_MODULE(lpy)
 {
 	define_stl_exceptions();
 	export_Options();
@@ -66,15 +72,17 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
     export_NodeModule();
 	export_AxialTree();
 	export_PatternString();
-    export_Interpretation();
     export_Consider();
     export_LsysRule();
     export_LsysContext();
     export_Lsystem();
-    export_plot();
 	export_parser();
     export_StringMatching();
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
     export_Debugger();
+    export_Interpretation();
+    export_plot();
+#endif
 	// def("cleanLsys",&cleanLsys);
 	Py_AtExit(&cleanLsys);
 };

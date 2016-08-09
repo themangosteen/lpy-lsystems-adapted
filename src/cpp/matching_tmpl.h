@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __matching_tpl_h__
-#define __matching_tpl_h__
+#pragma once
 
 #include "matching.h"
 #include "axialtree_iter.h"
@@ -652,5 +651,3 @@ struct TreeRightMatcher
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

@@ -28,13 +28,14 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __plot_string_h__
-#define __plot_string_h__
+#pragma once
+ 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 
 #include "lpy_config.h"
 #include "stringmatching.h"
-#include <plantgl/scenegraph/scene/scene.h>
-#include <plantgl/algo/modelling/pglturtle.h>
+#include "../plantgl/scenegraph/scene/scene.h"
+#include "../plantgl/algo/modelling/pglturtle.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -82,5 +83,4 @@ PGL(ScenePtr) LPY_API scene(AxialTree& tree, StringMatching& matching, PGL::PglT
 LPY_END_NAMESPACE
 
 #endif
-
 

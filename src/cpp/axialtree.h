@@ -28,15 +28,13 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __lpy_axialtree_h__
-#define __lpy_axialtree_h__
+#pragma once
 
 #include <vector>
 #include "module.h"
 #include "patternmodule.h"
 #include "abstractlstring.h"
 #include "global.h"
-
 
 LPY_BEGIN_NAMESPACE
 
@@ -217,5 +215,3 @@ public:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

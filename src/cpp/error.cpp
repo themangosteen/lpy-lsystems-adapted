@@ -84,4 +84,3 @@ LPY_API void LsysWarning(const std::string& error,const std::string& filename, i
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-

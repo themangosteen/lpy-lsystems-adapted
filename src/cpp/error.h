@@ -28,13 +28,11 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __PGL_LSYSERROR_H__
-#define __PGL_LSYSERROR_H__
+#pragma once
 
 #include "lpy_config.h"
 #include <string>
-#include <plantgl/python/exception.h>
-
+#include "../plantgl/python/exception.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -61,7 +59,3 @@ LPY_API void LsysWarning(const std::string& error,const std::string& filename, i
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif
-
-

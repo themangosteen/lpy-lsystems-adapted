@@ -37,29 +37,29 @@
 #include "tracker.h"
 #include "packedargs.h"
 #include <strstream>
-#include <plantgl/math/util_vector.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
 
+
 Module::Module() : 
-	__mclass(ModuleClass::None)
+	m_mclass(ModuleClass::None)
 { IncTracker(Module) }
 
 Module::Module(const std::string& c) : 
-	__mclass(ModuleClassTable::get().getClass(c))
+	m_mclass(ModuleClassTable::get().getClass(c))
 { IncTracker(Module) }
 
 Module::Module(const Module& m) :
-	__mclass(m.__mclass)
+	m_mclass(m.m_mclass)
 { IncTracker(Module) }
 
 Module::Module(size_t classid):
-    __mclass(ModuleClassTable::get().find(classid))
+    m_mclass(ModuleClassTable::get().find(classid))
 { IncTracker(Module) }
 
 Module::Module(const ModuleClassPtr m):
-    __mclass(m)
+    m_mclass(m)
 { IncTracker(Module) }
 
 Module::~Module()
@@ -203,7 +203,7 @@ ParamModule::ParamModule(const std::string& name) :
 	  std::string::const_iterator _it2 = name.end()-1;
 	  while(_it2 != _it && *_it2 != ')')_it2--;
       object o = LsysContext::currentContext()->evaluate('['+std::string(_it,_it2)+']');
-	  if(o != object()) processConstruction(*this,__args(),extract<list>(o)());
+	  if(o != object()) processConstruction(*this,getArgs(),extract<list>(o)());
 	}
   }
 }
@@ -214,7 +214,7 @@ ParamModule::ParamModule(size_t classid, const std::string& args):
 	if (!args.empty()){
       object o = LsysContext::currentContext()->evaluate('['+args+']');
 	  if(o != object()){
-		processConstruction(*this,__args(),extract<list>(o)());
+		processConstruction(*this,getArgs(),extract<list>(o)());
 	  }
 	}
 }
@@ -225,18 +225,18 @@ BaseType(mod)  {}
 
 ParamModule::ParamModule(const std::string& name, const boost::python::list& arg):
 BaseType(name) 
-{ processConstruction(*this,__args(),arg); }
+{ processConstruction(*this,getArgs(),arg); }
 
 ParamModule::ParamModule(size_t classid, const boost::python::list& arg):
 BaseType(classid) 
-{ processConstruction(*this,__args(),arg); }
+{ processConstruction(*this,getArgs(),arg); }
 
 
 
 ParamModule::ParamModule(const ModuleClassPtr m, 
               const boost::python::tuple& args):
     BaseType(m) 
-{ processConstruction(*this,__args(),args); }
+{ processConstruction(*this,getArgs(),args); }
 
 
 ParamModule::ParamModule(boost::python::tuple t):
@@ -245,7 +245,7 @@ ParamModule::ParamModule(boost::python::tuple t):
   extract<size_t> id_extract(t[0]);
   if (id_extract.check()) setClass(id_extract());
   else setName(extract<std::string>(t[0]));
-  processConstruction(*this,__args(),t,1);
+  processConstruction(*this,getArgs(),t,1);
 }
 
 
@@ -255,24 +255,24 @@ ParamModule::ParamModule(boost::python::list t):
   extract<size_t> id_extract(t[0]);
   if (id_extract.check())setClass(id_extract());
   else setName(extract<std::string>(t[0]));
-  processConstruction (*this,__args(),t,1);
+  processConstruction (*this,getArgs(),t,1);
 }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a):
-BaseType(name) { processLastArg(getClass(),__args(),a); }
+BaseType(name) { processLastArg(getClass(),getArgs(),a); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b):
-BaseType(name) { appendParam(__args(),a); processLastArg(getClass(), __args(),b); }
+BaseType(name) { appendParam(getArgs(),a); processLastArg(getClass(), getArgs(),b); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b,
 						 const boost::python::object& c):
 BaseType(name) 
-{ appendParam(__args(),a); appendParam(__args(),b); processLastArg(getClass(),__args(),c); }
+{ appendParam(getArgs(),a); appendParam(getArgs(),b); processLastArg(getClass(),getArgs(),c); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
@@ -280,8 +280,8 @@ ParamModule::ParamModule(const std::string& name,
 						 const boost::python::object& c,
 						 const boost::python::object& d):
 BaseType(name) 
- { appendParam(__args(),a); appendParam(__args(),b); 
-			  appendParam(__args(),c); processLastArg(getClass(), __args(),d); }
+ { appendParam(getArgs(),a); appendParam(getArgs(),b); 
+			  appendParam(getArgs(),c); processLastArg(getClass(), getArgs(),d); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
@@ -290,9 +290,9 @@ ParamModule::ParamModule(const std::string& name,
 						 const boost::python::object& d,
 						 const boost::python::object& e):
 BaseType(name)
-{ appendParam(__args(),a); appendParam(__args(),b); 
-  appendParam(__args(),c); appendParam(__args(),d);
-  processLastArg(getClass(), __args(),e); }
+{ appendParam(getArgs(),a); appendParam(getArgs(),b); 
+  appendParam(getArgs(),c); appendParam(getArgs(),d);
+  processLastArg(getClass(), getArgs(),e); }
 
 
 
@@ -302,7 +302,7 @@ ParamModule::~ParamModule()
 
 void ParamModule::appendArgumentList(const boost::python::object& arglist) 
 {
-    processArgList(getClass(),__args(),arglist);
+    processArgList(getClass(),getArgs(),arglist);
 }
 
 
@@ -310,7 +310,7 @@ void ParamModule::appendArgumentList(const boost::python::object& arglist)
 int 
 ParamModule::_getInt(int i) const 
 { 
-	const ParameterList& p = __constargs();
+	const ParameterList& p = getConstargs();
 	assert(p.size() > i);
     extract<int> ext(p[i]); 
     if (!ext.check()){
@@ -324,7 +324,7 @@ ParamModule::_getInt(int i) const
 real_t 
 ParamModule::_getReal(int i) const 
 { 
-	const ParameterList& p = __constargs();
+	const ParameterList& p = getConstargs();
 	assert(p.size() > i);
    extract<real_t> ext(p[i]); 
     if (!ext.check()){
@@ -337,7 +337,7 @@ ParamModule::_getReal(int i) const
 
 bool ParamModule::_getBool(int i) const
 {
-	const ParameterList& p = __constargs();
+	const ParameterList& p = getConstargs();
 	assert(p.size() > i);
     extract<bool> ext(p[i]); 
     if (!ext.check()){
@@ -352,7 +352,7 @@ bool ParamModule::_getBool(int i) const
 std::string 
 ParamModule::_getString(int i) const 
 { 
-	const ParameterList& p = __constargs();
+	const ParameterList& p = getConstargs();
 	assert(p.size() > i);
 	extract<char const*>ext(p[i]);
     if (!ext.check()){
@@ -369,7 +369,7 @@ ParamModule::_getString(int i) const
 void 
 ParamModule::_setValues(real_t x,real_t y,real_t z)
 { 
-  ParameterList& args = __args();
+  ParameterList& args = getArgs();
   size_t nbArg = args.size();
   if (nbArg > 3) nbArg = 3;
   switch(nbArg){
@@ -395,8 +395,8 @@ ParamModule::_setValues(real_t x,real_t y,real_t z)
       }
   case 0:
       appendParam(args,object(TOOLS(Vector3(x,y,z))));
-	// appendParam(__args,object(y));
-	// appendParam(__args,object(z));
+	// appendParam(m_args,object(y));
+	// appendParam(m_args,object(z));
   default :
 	break;
   }
@@ -405,7 +405,7 @@ ParamModule::_setValues(real_t x,real_t y,real_t z)
 void ParamModule::_setFrameValues(const TOOLS(Vector3)& p, const TOOLS(Vector3)& h, 
 								  const TOOLS(Vector3)& u, const TOOLS(Vector3)& l)
 {
-  ParameterList& args = __args();
+  ParameterList& args = getArgs();
   size_t nbArg = args.size();
   if(nbArg >= 1 )args[0] = object(p);
   else args.push_back(object(p));

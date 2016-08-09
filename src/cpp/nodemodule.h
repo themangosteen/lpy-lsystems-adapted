@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __lpy_node_module_h__
-#define __lpy_node_module_h__
+#pragma once
 
 #include "axialtree.h"
 
@@ -47,37 +46,37 @@ public:
   virtual ~NodeModule();
 
   inline NodeModule parent() const
-  { return make_node(LPY::parent(__pos,__beg,__end));}
+  { return make_node(LPY::parent(m_pos,m_beg,m_end));}
 
   inline std::vector<NodeModule> children() const
-  { return make_nodes(LPY::children(__pos,__end)); }
+  { return make_nodes(LPY::children(m_pos,m_end)); }
 
   inline std::vector<NodeModule> lateral_children() const
-  { return make_nodes(LPY::lateral_children(__pos,__end)); }
+  { return make_nodes(LPY::lateral_children(m_pos,m_end)); }
 
   inline NodeModule direct_child() const
-  { return make_node(LPY::direct_child(__pos,__end)); }
+  { return make_node(LPY::direct_child(m_pos,m_end)); }
 
   inline NodeModule complex(int scale) const
-  {  return make_node(LPY::complex(__pos,scale,__beg,__end)); }
+  {  return make_node(LPY::complex(m_pos,scale,m_beg,m_end)); }
 
   inline NodeModule complex() const
   { return complex(scale()+1); }
 
   inline std::vector<NodeModule> components() const
-  {  return make_nodes(LPY::components(__pos,__end)); }
+  {  return make_nodes(LPY::components(m_pos,m_end)); }
 
   inline std::vector<NodeModule> components_at_scale(int scale) const
-  {  return make_nodes(LPY::components_at_scale(__pos, scale, __end)); }
+  {  return make_nodes(LPY::components_at_scale(m_pos, scale, m_end)); }
 
   inline bool isRoot() const
-  { return __pos == __beg; }
+  { return m_pos == m_beg; }
 
   inline bool isValid() const
-  { return __pos != __end; }
+  { return m_pos != m_end; }
 
   inline size_t position() const
-  { return std::distance(__beg,__pos); }
+  { return std::distance(m_beg,m_pos); }
 
 protected:
 
@@ -85,13 +84,13 @@ protected:
   { 
 	  std::vector<NodeModule> res;
 	  for(std::vector<AxialTree::const_iterator>::const_iterator itpos = pos.begin(); itpos != pos.end(); ++itpos)
-		  res.push_back(NodeModule(*itpos,__beg,__end));
+		  res.push_back(NodeModule(*itpos,m_beg,m_end));
 	  return res;
   }
   inline NodeModule make_node(const AxialTree::const_iterator& pos) const
   { 
-	  if (pos == __end) return NodeModule(__beg,__end);
-	  return NodeModule(pos,__beg,__end);
+	  if (pos == m_end) return NodeModule(m_beg,m_end);
+	  return NodeModule(pos,m_beg,m_end);
   }
 
   NodeModule();
@@ -99,16 +98,12 @@ protected:
   NodeModule(AxialTree::const_iterator beg, 
 			 AxialTree::const_iterator end);
 
-  AxialTree::const_iterator __pos;
-  AxialTree::const_iterator __beg; 
-  AxialTree::const_iterator __end;
+  AxialTree::const_iterator m_pos;
+  AxialTree::const_iterator m_beg; 
+  AxialTree::const_iterator m_end;
 
 };
 
 /*---------------------------------------------------------------------------*/
 
-
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-#endif

@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __lpy_global_h__
-#define __lpy_global_h__
+#pragma once
 
 #include "lpy_config.h"
 
@@ -50,5 +49,3 @@ LPY_API enum eConsiderMethod {
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

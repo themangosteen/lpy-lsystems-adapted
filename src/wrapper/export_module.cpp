@@ -28,18 +28,21 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "axialtree.h"
-#include "packedargs.h"
-#include "matching.h"
+#include "../cpp/axialtree.h"
+#include "../cpp/packedargs.h"
+#include "../cpp/matching.h"
 #include "export_module.h"
-#include <plantgl/tool/util_string.h>
-#include <plantgl/scenegraph/pgl_version.h>
+#include "../plantgl/tool/util_string.h"
+#include "../plantgl/python/export_list.h"
+#include "../plantgl/python/extract_list.h"
+#include "../plantgl/python/export_refcountptr.h"
+
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+#include "../plantgl/scenegraph/pgl_version.h"
 #if PGL_VERSION < 0x020700
 #error You should upgrade your version of PlantGL
 #endif
-#include <plantgl/python/export_list.h>
-#include <plantgl/python/extract_list.h>
-#include <plantgl/python/export_refcountptr.h>
+#endif
 
 using namespace boost::python;
 #define bp boost::python
@@ -83,9 +86,9 @@ object func(ParamModule * m1,object b){ \
 	for(int j = s2; j < s; j++){ \
 	  d[(std::string("unamed")+(char)('0'+j-s2)).c_str()]=arg[j]; \
 	} \
-	return make_tuple(true,d); \
+	return boost::python::make_tuple(true,d); \
   } \
-  else return make_tuple(false,dict()); \
+  else return boost::python::make_tuple(false,dict()); \
 } 
 
 // MATCHING(match);

@@ -1,19 +1,15 @@
-#ifndef __module_vtable_h__
-#define __module_vtable_h__
+#pragma once
 
 #include "error.h"
-#include <plantgl/tool/util_hashmap.h>
-#include <plantgl/tool/util_hashset.h>
-#include <plantgl/tool/rcobject.h>
+#include "../plantgl/tool/util_hashmap.h"
+#include "../plantgl/tool/util_hashset.h"
+#include "../plantgl/tool/rcobject.h"
 #include <boost/python.hpp>
 #include <vector>
-
-/*---------------------------------------------------------------------------*/
 
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
-
 
 class LPY_API BaseModuleProperty : public TOOLS(RefCountObject) {
 public:
@@ -69,24 +65,24 @@ public:
 
 	int scale;
 
-	inline ModuleClassPtr getModuleClass() const { return __owner; }
-	inline void setModuleClass(ModuleClassPtr mclass) { __owner = mclass; }
+	inline ModuleClassPtr getModuleClass() const { return m_owner; }
+	inline void setModuleClass(ModuleClassPtr mclass) { m_owner = mclass; }
 
 	inline ModuleClassList getBases() const { 
 		ModuleClassList bases;
-		for(ModuleClassDirectPtrList::const_iterator it = __modulebases.begin(); it != __modulebases.end(); ++it)
+		for(ModuleClassDirectPtrList::const_iterator it = m_modulebases.begin(); it != m_modulebases.end(); ++it)
 			bases.push_back(*it);
 		return bases; 
 	}
 
-	inline bool hasBaseClasses() const { return !__modulebases.empty(); }
+	inline bool hasBaseClasses() const { return !m_modulebases.empty(); }
 
 	void setBase(ModuleClassPtr mclass) ;
 	void setBases(const ModuleClassList& mclasses) ;
 
 	inline std::vector<size_t> getAllBaseIds() const {
 		std::vector<size_t> basesid;
-		for(pgl_hash_set<size_t>::const_iterator it = __modulebasescache.begin(); it != __modulebasescache.end(); ++it)
+		for(pgl_hash_set<size_t>::const_iterator it = m_modulebasescache.begin(); it != m_modulebasescache.end(); ++it)
 			basesid.push_back(*it);
 		return basesid; 
 	}
@@ -99,12 +95,12 @@ public:
 protected:
 	void updateInheritedParameters() ;
 
-	PropertyMap __propertymap;
-	ModuleClass * __owner;
+	PropertyMap m_propertymap;
+	ModuleClass * m_owner;
 	typedef ModuleClass * ModuleClassDirectPtr;
 	typedef std::vector<ModuleClassDirectPtr> ModuleClassDirectPtrList;
-	ModuleClassDirectPtrList __modulebases;
-	pgl_hash_set<size_t> __modulebasescache;
+	ModuleClassDirectPtrList m_modulebases;
+	pgl_hash_set<size_t> m_modulebasescache;
 
 };
 
@@ -114,7 +110,3 @@ typedef std::vector<ModuleVTablePtr> ModuleVTableList;
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-
-#endif

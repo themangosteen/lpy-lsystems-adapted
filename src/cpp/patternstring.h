@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __pattern_lstring_h__
-#define __pattern_lstring_h__
+#pragma once
 
 #include "abstractlstring.h"
 #include "patternmodule.h"
@@ -86,14 +85,12 @@ protected:
 
 	PatternStringManager();
 
-	PatternStringMap __patterns;
-	std::queue<size_t> __free_indices;
-	PatternString __nullpattern;
+	PatternStringMap m_patterns;
+	std::queue<size_t> m_free_indices;
+	PatternString m_nullpattern;
 
 };
 
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

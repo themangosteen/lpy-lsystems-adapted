@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __LSYS_TRACKER_H__
-#define __LSYS_TRACKER_H__
+#pragma once
 
 #include "lpy_config.h"
 #include <stddef.h>
@@ -77,9 +76,6 @@ public:
 
 #endif
 
-
-LPY_END_NAMESPACE
-
 /*---------------------------------------------------------------------------*/
 
-#endif
+LPY_END_NAMESPACE

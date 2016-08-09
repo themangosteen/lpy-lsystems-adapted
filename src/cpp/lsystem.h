@@ -28,8 +28,7 @@
 # ---------------------------------------------------------------------------
 */
 
-#ifndef __PGL_LSYSTEM_H__
-#define __PGL_LSYSTEM_H__
+#pragma once
 
 #include "lsysrule.h"
 #include "lsyscontext.h"
@@ -38,8 +37,7 @@
 
 LPY_BEGIN_NAMESPACE
 
-#define MULTI_THREADED_LSYSTEM
-
+//#define MULTI_THREADED_LSYSTEM
 
 /*---------------------------------------------------------------------------*/
 
@@ -111,23 +109,27 @@ public:
 
   /** get rules */
   inline const LsysRule& productionRule( size_t i, size_t group) const
-  { return __rules[group].production[i]; }
+  { return m_rules[group].production[i]; }
   inline const LsysRule& decompositionRule( size_t i, size_t group) const
-  { return __rules[group].decomposition[i]; }
+  { return m_rules[group].decomposition[i]; }
   inline const LsysRule& interpretationRule( size_t i, size_t group) const
-  { return __rules[group].interpretation[i]; }
+  { return m_rules[group].interpretation[i]; }
 
   /** Axiom */
   void setAxiom( const AxialTree& axiom );
   const AxialTree& getAxiom( ) const ;
 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
   /** Plot and interpret */
   void plot( AxialTree& workstring, bool checkLastComputedScene =  false);
 
   inline void turtle_interpretation( AxialTree& workstring)
-  { turtle_interpretation(workstring,__context.envturtle); }
+  { turtle_interpretation(workstring,m_context.envturtle); }
   void turtle_interpretation( AxialTree& workstring, PGL::Turtle& t );
   PGL(ScenePtr) sceneInterpretation( AxialTree& workstring );
+#endif
+
+  void clearLsys();
 
   AxialTree interpret(AxialTree& workstring);
 
@@ -136,12 +138,12 @@ public:
 
   /** derive */
   inline AxialTree derive( )
-  { return derive(__axiom, 0,__max_derivation); }
+  { return derive(m_axiom, 0,m_max_derivation); }
   inline AxialTree derive( size_t nb_iter )
-  { return derive(__axiom, 0, nb_iter); }
+  { return derive(m_axiom, 0, nb_iter); }
 
   inline AxialTree derive( const AxialTree& workstring )
-  { return derive(workstring, 0,__max_derivation); }
+  { return derive(workstring, 0,m_max_derivation); }
 
   inline AxialTree derive( const AxialTree& workstring, size_t nb_iter )
   { return derive(workstring, 0,nb_iter ); }
@@ -153,52 +155,54 @@ public:
 
   /** Animation */
   inline AxialTree animate()
-  { return animate(__context.get_animation_timestep(),0,__max_derivation); }
+  { return animate(m_context.get_animation_timestep(),0,m_max_derivation); }
   inline AxialTree animate(double dt)
-  { return animate(dt,0,__max_derivation); }
+  { return animate(dt,0,m_max_derivation); }
   inline AxialTree animate(double dt, size_t order)
   { return animate(dt,0,order); }
   inline AxialTree animate(double dt, size_t beg, size_t nb_iter)
-  { return animate(__axiom,dt,beg,nb_iter); }
+  { return animate(m_axiom,dt,beg,nb_iter); }
   AxialTree animate(const AxialTree& workstring, double, size_t beg, size_t nb_iter);
 
   /** Record */
   inline void record(const std::string& prefix)
-  { record(prefix,__axiom,0,__max_derivation); }
+  { record(prefix,m_axiom,0,m_max_derivation); }
   inline void record(const std::string& prefix, size_t nb_iter)
-  { record(prefix,__axiom,0,nb_iter); }
+  { record(prefix,m_axiom,0,nb_iter); }
   inline void record(const std::string& prefix, size_t beg, size_t nb_iter)
-  { return record(prefix,__axiom,beg,nb_iter); }
+  { return record(prefix,m_axiom,beg,nb_iter); }
   void record(const std::string& prefix, const AxialTree& workstring, size_t beg, size_t nb_iter);
 
   /** nb of iterations */
-  inline size_t derivationLength() const { return __max_derivation; }
-  inline void setDerivationLength(size_t v) { __max_derivation = v; }
+  inline size_t derivationLength() const { return m_max_derivation; }
+  inline void setDerivationLength(size_t v) { m_max_derivation = v; }
 
-  inline size_t decompositionMaxDepth() const { return __decomposition_max_depth; }
-  inline void setDecompositionMaxDepth(size_t v) { __decomposition_max_depth = v; }
+  inline size_t decompositionMaxDepth() const { return m_decomposition_max_depth; }
+  inline void setDecompositionMaxDepth(size_t v) { m_decomposition_max_depth = v; }
 
-  inline size_t interpretationMaxDepth() const { return __interpretation_max_depth; }
-  inline void setInterpretationMaxDepth(size_t v) { __interpretation_max_depth = v; }
+  inline size_t interpretationMaxDepth() const { return m_interpretation_max_depth; }
+  inline void setInterpretationMaxDepth(size_t v) { m_interpretation_max_depth = v; }
 
   /** context */
-  inline LsysContext * context() { return &__context; } 
-  inline const LsysContext * context() const { return &__context; } 
+  inline LsysContext * context() { return &m_context; } 
+  inline const LsysContext * context() const { return &m_context; } 
   /** make current or disable the context of self */
-  inline void makeCurrent() { return __context.makeCurrent(); }
-  inline bool isCurrent() const { return __context.isCurrent(); }
-  inline void done() { return __context.done(); }
+  inline void makeCurrent() { return m_context.makeCurrent(); }
+  inline bool isCurrent() const { return m_context.isCurrent(); }
+  inline void done() { return m_context.done(); }
 
   /** direction of iteration */
-  inline eDirection getDirection() const { return __context.getDirection(); }
+  inline eDirection getDirection() const { return m_context.getDirection(); }
 
   /** early return */
   void enableEarlyReturn(bool val) ;
   bool isEarlyReturnEnabled() ;
 
   /* last computation result */
-  size_t getLastIterationNb() { return __context.getIterationNb(); }
-  PGL(ScenePtr) getLastComputedScene() { return __lastcomputedscene; }
+  size_t getLastIterationNb() { return m_context.getIterationNb(); }
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+  PGL(ScenePtr) getLastComputedScene() { return m_lastcomputedscene; }
+#endif
 
    /** test if self is actually iterating */
    bool isRunning() const;
@@ -208,7 +212,7 @@ public:
    void addSubLsystem(const std::string& lfile);
    void addSubLsystem(const Lsystem& sublsystem);
 
-   class LPY_API Debugger : public TOOLS::RefCountObject {
+   class LPY_API Debugger : public TOOLS(RefCountObject) {
    public:
 	   Debugger() : alwaysStop(true) { }
 	   virtual ~Debugger() ;
@@ -313,10 +317,10 @@ public:
    };
    typedef RCPtr<Debugger> DebuggerPtr;
 
-   inline void setDebugger(DebuggerPtr debugger) { __debugger = debugger; }
-   inline DebuggerPtr getDebugger() const { return __debugger; }
-   inline bool hasDebugger() const { return is_valid_ptr(__debugger); }
-   inline void clearDebugger() { __debugger = DebuggerPtr(); }
+   inline void setDebugger(DebuggerPtr debugger) { m_debugger = debugger; }
+   inline DebuggerPtr getDebugger() const { return m_debugger; }
+   inline bool hasDebugger() const { return is_valid_ptr(m_debugger); }
+   inline void clearDebugger() { m_debugger = DebuggerPtr(); }
 
    pgl_hash_map_string<std::string> get_rule_fonction_table() const;
 
@@ -332,85 +336,94 @@ protected:
     RuleSet production;
     RuleSet decomposition;
     RuleSet interpretation;
-    bool __prodhasquery;
-    bool __dechasquery;
-    bool __inthasquery;
+    bool m_prodhasquery;
+    bool m_dechasquery;
+    bool m_inthasquery;
   };
 
   typedef std::vector<RuleGroup> RuleGroupList;
 
 
-  LsysRule& __addRule( const std::string& rule, int type, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
-  LsysRule& __addProductionRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
-  LsysRule& __addDecompositionRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
-  LsysRule& __addInterpretationRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& addRule( const std::string& rule, int type, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& addProductionRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& addDecompositionRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& addInterpretationRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
 
- void __clear();
- void __importPyFunctions();
+ void importPyFunctions();
 
  Lsystem(const Lsystem& lsys);
  Lsystem& operator=(const Lsystem& lsys);
 
- AxialTree __homomorphism(AxialTree& workstring);
- void __plot(AxialTree& workstring, bool checkLastComputedScene =  false);
- void __turtle_interpretation(AxialTree& workstring, PGL::Turtle& t);
- AxialTree __derive( size_t starting_iter , 
+ AxialTree homomorphism(AxialTree& workstring);
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+ void plot(AxialTree& workstring, bool checkLastComputedScene =  false);
+ void turtle_interpretation(AxialTree& workstring, PGL::Turtle& t);
+#endif
+ AxialTree derive( size_t starting_iter , 
                       size_t nb_iter , 
                       const AxialTree& workstring, 
                       bool previouslyinterpreted = false);
 
- AxialTree __step(AxialTree& workingstring,
+ AxialTree step(AxialTree& workingstring,
 				   const RulePtrMap& ruleset,
 				   bool query,bool& matching,
                    eDirection direction);
- AxialTree __debugStep(AxialTree& workingstring, const RulePtrMap& ruleset,
+ AxialTree debugStep(AxialTree& workingstring, const RulePtrMap& ruleset,
 					bool query, bool& matching, eDirection direction, Debugger& debugger);
 
- AxialTree __stepWithMatching(AxialTree& workingstring,
+ AxialTree stepWithMatching(AxialTree& workingstring,
 				              const RulePtrMap& ruleset,
 				              bool query,
                               StringMatching& matching);
- AxialTree __recursiveSteps(AxialTree& workingstring,
+ AxialTree recursiveSteps(AxialTree& workingstring,
 				            const RulePtrMap& ruleset, 
                             size_t maxdepth);
 
- void __recursiveInterpretation(AxialTree& workingstring,
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+ void recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PGL::Turtle& turtle,
                                 size_t maxdepth);
 
- void __recursiveStepInterpretation(AxialTree& workingstring,
+ void recursiveStepInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PGL::PglTurtle& turtle,
                                 size_t maxdepth);
+#endif
 
  template<class Interpreter>
- void __gRecursiveInterpretation(AxialTree& workingstring,
+ void gRecursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 Interpreter& interpreter,
                                 size_t maxdepth,
 								bool withid = true);
 
- RulePtrMap __getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
+ RulePtrMap getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
 
- void __apply_pre_process(AxialTree& workstring, bool starteach = true);
- PGL(ScenePtr) __apply_post_process(AxialTree& workstring, bool endeach = true);
+ void apply_pre_process(AxialTree& workstring, bool starteach = true);
+ 
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+ PGL(ScenePtr) apply_post_process(AxialTree& workstring, bool endeach = true);
+#endif
 
-  AxialTree __axiom;
-  RuleGroupList __rules;
+  AxialTree m_axiom;
+  RuleGroupList m_rules;
 
-  size_t __max_derivation;
-  size_t __decomposition_max_depth;
-  size_t __interpretation_max_depth;
-  size_t __currentGroup;
-  LocalContext __context;
-  PGL(ScenePtr) __lastcomputedscene;
+  size_t m_max_derivation;
+  size_t m_decomposition_max_depth;
+  size_t m_interpretation_max_depth;
+  size_t m_currentGroup;
+  LocalContext m_context;
   
-  RuleGroup& __group(size_t group) ;
-  const RuleGroup& __group(size_t group) const;
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
+  PGL(ScenePtr) m_lastcomputedscene;
+#endif
+  
+  RuleGroup& group(size_t group) ;
+  const RuleGroup& group(size_t group) const;
 
-  DebuggerPtr __debugger;
-  bool __newrules;
+  DebuggerPtr m_debugger;
+  bool m_newrules;
 
 private:
 #ifdef MULTI_THREADED_LSYSTEM
@@ -418,7 +431,7 @@ private:
   void release() const;
   class LsysAcquirer {
     public:
-      const Lsystem * __lsys;
+      const Lsystem * m_lsys;
       LsysAcquirer(const Lsystem * lsys) ;
       ~LsysAcquirer() ;
   };
@@ -428,7 +441,7 @@ private:
       LsysRessource();
       QMutex mutex;
   };
-  LsysRessource * __ressource;
+  LsysRessource * m_ressource;
 #endif
 
 };
@@ -436,5 +449,3 @@ private:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-#endif

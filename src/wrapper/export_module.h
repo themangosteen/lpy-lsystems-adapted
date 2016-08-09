@@ -28,7 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#include <plantgl/python/boost_python.h>
+#include <boost/python.hpp>
 
 template<class ParamModule>
 class module_func : public boost::python::def_visitor<module_func<ParamModule> >

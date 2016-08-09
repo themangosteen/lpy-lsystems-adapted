@@ -984,4 +984,3 @@ bool MatchingImplementation::mltree_right_match(AxialTree::const_iterator  match
 }
 
 LPY_END_NAMESPACE
-

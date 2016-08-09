@@ -32,11 +32,11 @@
 #include "patternstring.h"
 #include "lpy_parser.h"
 #include "tracker.h"
+#include "../plantgl/tool/util_string.h"
 
 LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
-
 
 PatternString::PatternString() : BaseType(){  IncTracker(PatternString) }
 PatternString::PatternString(const PatternModule& m ) : BaseType(){ IncTracker(PatternString) append(m); }
@@ -49,7 +49,7 @@ PatternString::~PatternString() { DecTracker(PatternString) }
 PatternString::PatternString(const std::string& s, int lineno) : BaseType() {
   IncTracker(PatternString)
   std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s,lineno);
-  __string().reserve(parsedstring.size());
+  string().reserve(parsedstring.size());
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
 		append(PatternModule(it->first,it->second,lineno));
@@ -141,49 +141,47 @@ PatternStringManager::~PatternStringManager()
 }
 
 PatternStringManager::PatternStringManager():
-	__patterns(), __free_indices()
+	m_patterns(), m_free_indices()
 {
 }
 
-#include <plantgl/tool/util_string.h>
-
 const PatternString& PatternStringManager::get_pattern(size_t pid)
 {
-	if (pid < __patterns.size())
+	if (pid < m_patterns.size())
 	{
-		return __patterns[pid];
+		return m_patterns[pid];
 	}
 	else 
 	{
 		std::string msg("Cannot find parametric production ");
 		msg += TOOLS(number(pid));
 		LsysError(msg);
-		return __nullpattern;
+		return m_nullpattern;
 	}
 }
 
 size_t PatternStringManager::register_pattern(const PatternString& pattern)
 {
 	size_t pid;
-	if (__free_indices.empty()){
-		pid = __patterns.size();
-		__patterns.push_back(pattern);
+	if (m_free_indices.empty()){
+		pid = m_patterns.size();
+		m_patterns.push_back(pattern);
 	}
 	else {
-		pid = __free_indices.front();
-		__free_indices.pop();
-		__patterns[pid] = pattern;
+		pid = m_free_indices.front();
+		m_free_indices.pop();
+		m_patterns[pid] = pattern;
 	}
 	return pid;
 }
 
 void PatternStringManager::remove_pattern(size_t pid)
 {
-	if (pid == __patterns.size())
-		__patterns.pop_back();
+	if (pid == m_patterns.size())
+		m_patterns.pop_back();
 	else {
-		__free_indices.push(pid);
-		__patterns[pid] = PatternString();
+		m_free_indices.push(pid);
+		m_patterns[pid] = PatternString();
 	}
 }
 

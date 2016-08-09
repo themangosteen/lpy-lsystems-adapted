@@ -28,8 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __PGL_STRINGMATCHING_H__
-#define __PGL_STRINGMATCHING_H__
+#pragma once
 
 #include <vector>
 #include "error.h"
@@ -54,25 +53,25 @@ protected:
     };
 
     typedef std::vector<StringMark> StringMarkList;
-    StringMarkList __matching;
+    StringMarkList m_matching;
 
 public:
     struct LPY_API const_iterator {
         friend class StringMatching;
     protected:
-        StringMarkList::const_iterator __iter;
-        StringMarkList::const_iterator __end;
-        size_t __target;
-        size_t __original;
+        StringMarkList::const_iterator m_iter;
+        StringMarkList::const_iterator m_end;
+        size_t m_target;
+        size_t m_original;
         const_iterator();
     public:
         void increment();
         const_iterator& operator++() { increment(); return *this; }
         const_iterator operator++(int i) { const_iterator t = *this; for (int j =0; j < i; j++)increment(); return t; }
-        const size_t& operator*( ) const { return __original; }
-        const size_t& original( ) const { return __original; }
-        const size_t& target( ) const { return __target; }
-        const size_t& next( ) { increment(); return __original; }
+        const size_t& operator*( ) const { return m_original; }
+        const size_t& original( ) const { return m_original; }
+        const size_t& target( ) const { return m_target; }
+        const size_t& next( ) { increment(); return m_original; }
         bool isOnMark() const;
         eIdPolicy currentIdPolicy() const;
 
@@ -100,7 +99,3 @@ public:
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
-
-/*---------------------------------------------------------------------------*/
-
-#endif
