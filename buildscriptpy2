@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rm -r ./buildpy2/*
+cd ./buildpy2
+cmake -DBUILDPYTHON2=ON ..
+time make
+mv liblpy.so lpy.so

@@ -1,6 +1,8 @@
 project(lpy)
 cmake_minimum_required(VERSION 2.8.12)
 
+option(BUILDPYTHON2 "Build for Python 2" OFF)
+
 # add CMakeLists.txt source dir and cmake module dir to the cmake module path
 # cmake modules are cmake files used e.g. to find library files
 set(CMAKE_MODULE_PATH 
@@ -9,7 +11,11 @@ set(CMAKE_MODULE_PATH
     ) 
 
 # specify build dir for out-of-source build (aka shadow build)
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
+if(BUILDPYTHON2)
+    set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
+else(BUILDPYTHON2)
+    set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/buildpy2)
+endif(BUILDPYTHON2)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 
@@ -21,10 +27,14 @@ set(CMAKE_CXX_FLAGS "-g -std=c++0x -Wl,--no-undefined") # tell linker to report 
 
 ### EXTERNAL LIBRARIES ###
 
-find_package(PythonLibs 2.7 REQUIRED)
-find_package(Boost 1.49 COMPONENTS python REQUIRED)
-#find_package(PythonLibs 3.5 REQUIRED)
-#find_package(Boost 1.49 COMPONENTS python3 REQUIRED)
+if(BUILDPYTHON2)
+    find_package(PythonLibs 2.7 REQUIRED)
+    find_package(Boost 1.49 COMPONENTS python REQUIRED)
+else(BUILDPYTHON2)
+    find_package(PythonLibs 3.5 REQUIRED)
+    find_package(Boost 1.49 COMPONENTS python3 REQUIRED)
+endif(BUILDPYTHON2)
+
 find_package(Qt5Core REQUIRED)
 
 
