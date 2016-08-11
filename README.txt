@@ -20,7 +20,7 @@ Python 3.5
 Boost::Python3 1.49
 Qt5Core
 
-optionally adjust CMakeLists.txt to use:
+optionally use cmake -DBUILDPYTHON2=ON to build with minimum deps
 Python 2.7
 Boost::Python 1.49
 
