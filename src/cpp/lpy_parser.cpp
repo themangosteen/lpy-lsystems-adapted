@@ -326,7 +326,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
 
   while(_it!=endpycode){
-	// printf("******'%c' %i\n",*_it,std::distance(begcode,_it));
+	//printf("******'%c' %i\n",*_it,std::distance(begcode,_it));
 	switch(mode){
 	case -1:
 	  {
@@ -360,6 +360,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               axiomcode += LpyParsing::lstring2py(_it,endpycode,'\n',lineno,&axiomsize);
               ++lineno;
               ++_it;
+              //printf("axiomcode: %s. module count: %d. axiom line number: %d\n", axiomcode.c_str(), axiomsize, axiom_lineno);
               if (axiomsize == 0 && (*_it == '\t' || *_it == ' ')){
                   code += "def "+LsysContext::AxiomVariable+"() :\n";
                   axiom_is_function = true;
@@ -978,13 +979,19 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   if (!addedcode.empty())
 	code+='\n'+addedcode;
   if(pycode) *pycode = code;
-  // printf("%s",code.c_str());
+  //printf("CODE BEFORE COMPILATION:\n%s\n", code.c_str());
   m_context.compile(code);
   importPyFunctions();
   if (m_context.hasObject(LsysContext::AxiomVariable)){
       if (!axiom_is_function){
           try
-          { m_axiom = AxialTree(extract<boost::python::list>(m_context.getObject(LsysContext::AxiomVariable))); }
+          { 
+            object axiomobj = m_context.getObject(LsysContext::AxiomVariable);
+            list axiomlist = extract<boost::python::list>(axiomobj);
+            //std::cout << "axiom module list length: " << boost::python::len(axiomlist) << "\n";
+            m_axiom = AxialTree(axiomlist); 
+            //std::cout << "axiom: " << m_axiom.repr() << "\n";
+            }
           catch(error_already_set const &)
           { 
 		      PyErr_Clear();
@@ -992,9 +999,9 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
           }
       }
       else {
-          // Execute function axiom
+           // Execute function axiom
            m_context.func(LsysContext::AxiomVariable);
-           m_axiom =  m_context.get_nproduction();
+           m_axiom = m_context.get_nproduction();
            m_context.reset_nproduction();
       }
   }
@@ -1321,6 +1328,7 @@ std::string LpyParsing::lstring2py(const std::string& lcode)
 
 /*---------------------------------------------------------------------------*/
 
+// convert lstring to python list. e.g. +(0.1)AF(2) to [(33,0.1),84,(4,2)]. first numbers in tuples represent the parsed commands. list can then be used to construct AxialTree.
 std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
 								    std::string::const_iterator endpos,
 								    char delim, int lineno, int * nbModules){

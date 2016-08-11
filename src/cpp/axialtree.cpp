@@ -48,7 +48,7 @@ AxialTree::AxialTree(const AxialTree& m):
   BaseType(m)
   { IncTracker(AxialTree) }
 
- AxialTree::AxialTree(const std::string& s):
+AxialTree::AxialTree(const std::string& s):
   BaseType()
 { 
   IncTracker(AxialTree)
@@ -68,33 +68,59 @@ AxialTree::AxialTree(const ParamModule& m):
 { IncTracker(AxialTree) }
 
 AxialTree::AxialTree(const boost::python::list& l):
-  BaseType(){
-  IncTracker(AxialTree) 
-  object iter_obj = object( handle<>( PyObject_GetIter( l.ptr() ) ) );
+  BaseType()
+{
+  IncTracker(AxialTree)
+  
+  object iter_obj;
+  iter_obj = object( handle<>( PyObject_GetIter( l.ptr() ) ) );
+  int i = 0;
+  //std::cout << "\nAXIOM TREE CONSTRUCTION START\n";
   while( true )
   {
         object obj;
-        try {  obj = iter_obj.attr( "next" )(); }
-        catch( error_already_set ){ PyErr_Clear(); break; }
+        try {  
+#if PY_VERSION_HEX < 0x03000000
+            obj = iter_obj.attr( "next" )(); }
+#else
+            obj = iter_obj.attr( "__next__" )(); }
+#endif
+        catch( error_already_set ){
+            //std::cout << "error getting next module iterator at index: " << i  << "\n";
+            PyErr_Clear(); break;
+        }
+        //std::cout << "module index: " << i  << "\n";
+        ++i;
         extract<size_t> idext(obj);
-		if (idext.check())
-			string().push_back(idext());
+		if (idext.check()) {
+		    //std::cout << "char type module found\n";
+			string().push_back(idext()); // append to axialtree lstring, string() is from AbstractLString, a std::vector of modules
+	    }
 		else {
 			extract<std::string> st(obj);
-			if(st.check())
-				operator+=(AxialTree(st()));
+			if(st.check()) {
+		        //std::cout << "string type module found\n";
+				operator+=(AxialTree(st())); // calls +=operator of AxialTree (AbstracLString) itself, first operand is this
+			}
 			else {
 				extract<tuple> tu(obj);
-				if(tu.check())
-					string().push_back(ParamModule(tu()));
+				if(tu.check()) {
+				    //std::cout << "tuple type module found\n";
+					string().push_back(ParamModule(tu())); // append tuple as parameter module)
+				}
 				else {
 					extract<AxialTree> ax(obj);
-					if(ax.check()) operator+=(ax());
+					if(ax.check()) {
+					    //std::cout << "axialtree type module found\n";
+					    operator+=(ax()); // directly append axial tree to existing tree
+					}
 					else string().push_back(extract<ParamModule>(obj)());
 				}
 			}
 		}
+	    //std::cout << "lstring: " << this->repr() << "\n";
     }
+    //std::cout << "AXIOM TREE CONSTRUCTION END\n";
 }
 
 AxialTree::AxialTree(const boost::python::tuple& t):

@@ -522,7 +522,11 @@ LsysContext::hasObject(const std::string& name) const{
 object
 LsysContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const
 {
-  if (m_locals.has_key(name)) return m_locals.get(name,defaultvalue);
+  if (m_locals.has_key(name)) {
+    //printf("key found: %s\n", name.c_str());
+    return m_locals.get(name,defaultvalue);
+  }
+  //printf("%s: %s\n","key not found", name.c_str());
   handle<> res(allow_null(PyDict_GetItemString(globals(),name.c_str())));
   if(res) return object(handle<>(borrowed(res.get())));
   return defaultvalue;
@@ -603,8 +607,16 @@ LsysContext::clearNamespace() {
 void 
 LsysContext::namespaceInitialisation()
 {
+#ifndef Py_PYTHON_H
+  #error Python headers needed to compile C extensions, please install development version of Python.
+#endif
+#if PY_VERSION_HEX < 0x03000000
    if (!hasObject("__builtins__"))
 		setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+#else
+   if (!hasObject("__builtins__"))
+		setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("builtins")))))); // module __builtin__ was renamed to builtins in python3
+#endif
 
    if (!hasObject("nproduce")){
 	   Compilation::compile("from lpy import *",globals(),globals());
@@ -877,12 +889,18 @@ LsysContext::func(const std::string& funcname){
   return object();
 }
 
+#define FUNC_CODE_ATTR "__code__"
+#if PY_VERSION_HEX < 0x03000000
+  #undef FUNC_CODE_ATTR
+  #define FUNC_CODE_ATTR "func_code"
+#endif
+
 void 
 LsysContext::check_init_functions()
 {
 	if (hasObject("StartEach")) {
 		try {
-			m_nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr(FUNC_CODE_ATTR).attr("co_argcount"))();
 		}
 		catch (...) { PyErr_Clear(); m_nbargs_of_starteach = 0; }
 	}
@@ -890,7 +908,7 @@ LsysContext::check_init_functions()
 
 	if (hasObject("Start")) {
 		try {
-			m_nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_start = extract<size_t>(getObject("Start").attr(FUNC_CODE_ATTR).attr("co_argcount"))();
 		}
 		catch (...) { PyErr_Clear(); m_nbargs_of_start = 0; }
 	}
@@ -898,14 +916,14 @@ LsysContext::check_init_functions()
 
 	if (hasObject("EndEach")) {
 		try {
-			m_nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr(FUNC_CODE_ATTR).attr("co_argcount"))();
 		}
 		catch (...) { PyErr_Clear(); m_nbargs_of_endeach = 0; }
 	}
 	else m_nbargs_of_endeach = 0;
 	if (hasObject("End")) {
 		try {
-			m_nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
+			m_nbargs_of_end = extract<size_t>(getObject("End").attr(FUNC_CODE_ATTR).attr("co_argcount"))();
 		}
 		catch (...) { PyErr_Clear(); m_nbargs_of_end = 0; }
 	}

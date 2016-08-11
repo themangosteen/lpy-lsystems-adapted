@@ -5,3 +5,5 @@ cd ./buildpy2
 cmake -DBUILDPYTHON2=ON ..
 time make
 mv liblpy.so lpy.so
+
+cp ../test/test.py test.py

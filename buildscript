@@ -5,3 +5,5 @@ cd ./build
 cmake ..
 time make
 mv liblpy.so lpy.so
+
+cp ../test/test.py test.py
