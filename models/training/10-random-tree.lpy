@@ -13,7 +13,7 @@ def Start():
 
 Axiom: _(0.3)@GsG(1)A(1.0)
 
-derivation length: 250
+derivation length: 150
 production:
 
 A(k) :

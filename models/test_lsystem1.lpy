@@ -2,11 +2,10 @@
 Axiom: _(0.1)A
 
 derivation length: 20
+
 production:
-
-
 A :    
-    produce F(1)[-(60)X(5)B][+(60)X(5)B]A
+    produce F(1)[-(60)X(10)B][+(60)X(5)B]A
 
 B :
     produce F(1)B
