@@ -28,7 +28,7 @@ set(CMAKE_CXX_FLAGS "-g -std=c++0x -Wl,--no-undefined") # tell linker to report 
 ### EXTERNAL LIBRARIES ###
 
 if(BUILDPYTHON2)
-    find_package(PythonLibs 2.7 REQUIRED)
+    find_package(PythonLibs 2.6 REQUIRED)
     find_package(Boost 1.49 COMPONENTS python REQUIRED)
 else(BUILDPYTHON2)
     find_package(PythonLibs 3.5 REQUIRED)

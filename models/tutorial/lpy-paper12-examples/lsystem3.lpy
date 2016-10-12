@@ -1,5 +1,3 @@
-def EndEach(lstring):
-  print len(lstring), lstring
 
 Axiom: A
 

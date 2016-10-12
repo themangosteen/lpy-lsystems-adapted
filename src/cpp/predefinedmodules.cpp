@@ -1151,6 +1151,7 @@ void ModuleClass::createPredefinedClasses() {
 	RepExp = new PredefinedModuleClass("x","repexp","Used to specify matching of a repetition of modules.",PredefinedModuleClass::ePatternMatching);
 	RepExp->aliases.push_back("all");
 	Or = new PredefinedModuleClass("or","||","Used to specify an alternative matching of modules.",PredefinedModuleClass::ePatternMatching);
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	QueryPosition = new DeclaredModule(GetPos)("?P","GetPos");
 	QueryHeading = new DeclaredModule(GetHead)("?H","GetHead");
 	QueryUp = new DeclaredModule(GetUp)("?U","GetUp");
@@ -1172,6 +1173,7 @@ void ModuleClass::createPredefinedClasses() {
 	PinPointRel= new DeclaredModule(pinPointRel)("PinpointRel");
     SetHeading = new DeclaredModule(SetHead)("@R","SetHead");
     EulerAngles = new DeclaredModule(eulerAngles)("EulerAngles");
+#endif
 	Left = new DeclaredModule(left)("+","Left");
 	Right = new DeclaredModule(right)("-","Right");
 	Up = new DeclaredModule(up)("^","Up");
@@ -1181,24 +1183,29 @@ void ModuleClass::createPredefinedClasses() {
 	iRollL = new DeclaredModule(iRollL)("iRollL");
 	iRollR = new DeclaredModule(iRollR)("iRollR");
 	TurnAround = new DeclaredModule(turnAround)("|","TurnAround");
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	RollToVert = new DeclaredModule(rollToVert)("@v","RollToVert");
     Sphere = new DeclaredModule(sphere)("@O","Sphere");
     Box = new DeclaredModule(box)("@B","Box");
     Quad = new DeclaredModule(quad)("@b","Quad");
 	Circle = new DeclaredModule(circle)("@o","Circle");
 	Label = new DeclaredModule(label)("@L","Label");
+#endif
 	IncWidth = new DeclaredModule(incWidth)("_","IncWidth");
 	DecWidth = new DeclaredModule(decWidth)("!","DecWidth");
 	SetWidth = new DeclaredModule(setWidth)("SetWidth");
 	IncColor = new DeclaredModule(incColor)(";","IncColor");
 	DecColor = new DeclaredModule(decColor)(",","DecColor");
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
     SetColor = new DeclaredModule(setColor)("SetColor");
     InterpolateColors = new DeclaredModule(interpolateColors)("InterpolateColors");
 	DivScale = new DeclaredModule(divScale)("@Dd","DivScale");
 	MultScale = new DeclaredModule(multScale)("@Di","MultScale");
 	SetScale = new DeclaredModule(scale)("@D","SetScale");
+#endif
 	Surface = new DeclaredModule(surface)("surface");
 	CpfgSurface = new DeclaredModule(surface)("~");
+#ifndef LPY_NO_PLANTGL_INTERPRETATION
 	PglShape = new DeclaredModule(pglshape)("@g","PglShape");
 	Frame = new DeclaredModule(Frame)("Frame");
 	Elasticity = new DeclaredModule(elasticity)("@Ts","Elasticity");
@@ -1221,6 +1228,7 @@ void ModuleClass::createPredefinedClasses() {
     StartScreenProjection = new DeclaredModule(startScreenProjection)("@2D","StartScreenProjection");
     EndScreenProjection = new DeclaredModule(endScreenProjection)("@3D","EndScreenProjection");
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
+#endif
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	New = new PredefinedModuleClass("new","newmodule","Create a new module whose name is given by first argument.",PredefinedModuleClass::eStringManipulation);
 }

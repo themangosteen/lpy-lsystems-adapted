@@ -35,7 +35,7 @@ C(x,k) :
 
 k(s):
     if s >= 1.2:
-        produce ~l(s)
+        produce F(s)
     else:
         produce k(s+stepleaf)
 
@@ -50,7 +50,7 @@ C(x,k):
     produce F(x, d)
 
 k(s):
-    produce ~l(s)
+    produce F(s)
 ###### INITIALISATION ######
 
 __copyright__ = 'open-source GPL'

@@ -1,4 +1,4 @@
-/* 
+/*
 # ---------------------------------------------------------------------------
 #
 #       L-Py: L-systems in Python
@@ -82,7 +82,7 @@ std::vector<uint_t> LPY::getSelection()
 
 /*---------------------------------------------------------------------------*/
 
-static WaitSelectFunction DEFAULTWAITSELECT = 
+static WaitSelectFunction DEFAULTWAITSELECT =
 #if PGL_VERSION >= 0x020B01
 	&ViewerApplication::waitSelection;
 #else

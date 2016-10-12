@@ -32,7 +32,7 @@ def EndEach():
 Axiom: [,(2)-(5)/(35)_(16),(4)F(I0*10)A(0)]        
 
 production:
-derivation length:TALL
+derivation length:50
 
 A(t) :
     if t < T0:
@@ -59,12 +59,12 @@ C(t) :
         produce D%
     else: produce *
 
-D --> ,(1)@O(35)F(80)&(10)F(60)&(10)F(40)
+D --> ,(1)F(80)&(10)F(60)&(10)F(40)
 F(s) --> F(s*SRATE)
 f(s) --> f(s*SRATE)
 G(s) --> G(s*SRATE)
 ~l(s,t) : 
-    if t < T0 and s<600: produce ~l(s*LRATE,t+1)
+    if t < T0 and s<600: produce F(s*LRATE,t+1)
 &(a) : 
     if a<135: produce &(a+BANGI)
 -(a,t) : 
