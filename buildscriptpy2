@@ -7,4 +7,4 @@ time make
 mv liblpy.so lpy.so
 
 # copy test scripts to build dir
-cp ../test/*.py .
+# cp ../test/*.py .
