@@ -9,7 +9,7 @@ L-Py is an L-System simulation framework for Python implemented in C++ and expos
 This is a custom version intended to be used for lstring derivation only, leaving out the aspects of turtle interpretation and visualization originally provided by the PlantGL framework. Dependencies on an external PlantGL lib have been removed.
 The intention is to be able to provide custom implementation of the interpretation aspects (e.g. via the Blender Python interface) and to be able to use the powerful lstring derivation capabilities of the L-Py framework as a more modular library.
 
-Nikolaus Leopold, Summer 2016
+Niko Leopold, Summer 2016
 
 
 === DEPENDENCIES ===
@@ -27,7 +27,7 @@ Boost::Python 1.49
 
 === INSTALLATION ===
 
-NOTE: build files currently only written for Linux systems!
+NOTE: cmake build files currently only written for Linux systems!
 
 To build lpy as shared library:
 1. enter the /build directory

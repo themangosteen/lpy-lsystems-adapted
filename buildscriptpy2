@@ -1,6 +1,7 @@
 #!/bin/bash
 
-rm -r ./buildpy2/*
+rm -r ./buildpy2
+mkdir ./buildpy2
 cd ./buildpy2
 cmake -DBUILDPYTHON2=ON ..
 time make
